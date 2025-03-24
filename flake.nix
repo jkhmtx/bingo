@@ -27,6 +27,9 @@
         devShells = {
           default = pkgs.mkShell {
             buildInputs = [
+              pkgs.bc
+              pkgs.viewnior
+              pkgs.ghostscript
               pkgs.imagemagickBig
               pkgs.mprocs
             ];

@@ -6,99 +6,102 @@ trap 'echo "Error on line $LINENO"; exit 1' ERR
 trap 'echo "Exiting"; exit 0' SIGINT SIGTERM
 
 main() {
-	export BATCH_NUMBER TEST EXTRACT CROP SINGLE DOUBLE
+  export BATCH_NUMBER TEST EXTRACT CROP SINGLE DOUBLE
 
-	for part in base cropped singles doubles; do
-		mkdir -p batches/"${BATCH_NUMBER}/${part}"
-	done
+  # Convert jpg into png
+  find . -name "*.jpg" -exec mogrify -format png {} \;
 
-	local extract_env_file="batches/$BATCH_NUMBER/extract.env"
-	local crop_env_file="batches/$BATCH_NUMBER/crop.env"
-	local single_env_file="batches/$BATCH_NUMBER/single.env"
-	local double_env_file="batches/$BATCH_NUMBER/double.env"
+  for part in base cropped singles doubles; do
+    mkdir -p batches/"${BATCH_NUMBER}/${part}"
+  done
 
-	# Extract
-	if [ "${EXTRACT:-}" = 1 ]; then
-		if [ ! -s "$extract_env_file" ]; then
-			>&2 echo "WARNING: No env file found for extract"
-		fi
+  local extract_env_file="batches/$BATCH_NUMBER/extract.env"
+  local crop_env_file="batches/$BATCH_NUMBER/crop.env"
+  local single_env_file="batches/$BATCH_NUMBER/single.env"
+  local double_env_file="batches/$BATCH_NUMBER/double.env"
 
-		# shellcheck disable=1090
-		. "$extract_env_file" || true
+  # Extract
+  if [ "${EXTRACT:-}" = 1 ]; then
+    if [ ! -s "$extract_env_file" ]; then
+      >&2 echo "WARNING: No env file found for extract"
+    fi
 
-		./extract.sh
+    # shellcheck disable=1090
+    . "$extract_env_file" || true
 
-		# Test
-		if [ "${TEST:?}" = 1 ]; then
-			viewnior batches/"$BATCH_NUMBER"/base/base-0.png
-		fi
-	fi
+    ./extract.sh
 
-	# Crop
-	if [ "${CROP}" = 1 ]; then
-		if [ ! -s "$crop_env_file" ]; then
-			>&2 echo "FATAL: No env file found for crop"
-			return 1
-		fi
+    # Test
+    if [ "${TEST:?}" = 1 ]; then
+      viewnior batches/"$BATCH_NUMBER"/base/base-0.png
+    fi
+  fi
 
-		# shellcheck disable=1090
-		. "$crop_env_file"
+  # Crop
+  if [ "${CROP}" = 1 ]; then
+    if [ ! -s "$crop_env_file" ]; then
+      >&2 echo "FATAL: No env file found for crop"
+      return 1
+    fi
 
-		./crop.sh
+    # shellcheck disable=1090
+    . "$crop_env_file"
 
-		# Test
-		if [ "${TEST:?}" = 1 ]; then
-			viewnior batches/"$BATCH_NUMBER"/cropped/base-0.png
-		fi
-	fi
+    ./crop.sh
 
-	local cropped_files
-	cropped_files="$(find batches/"$BATCH_NUMBER"/cropped -maxdepth 1 -name "*.png" | sort -V)"
+    # Test
+    if [ "${TEST:?}" = 1 ]; then
+      viewnior batches/"$BATCH_NUMBER"/cropped/base-0.png
+    fi
+  fi
 
-	# Single
-	if [ "${SINGLE:?}" = 1 ]; then
-		if [ ! -s "$single_env_file" ]; then
-			>&2 echo "FATAL: No env file found for singles batch"
-			return 1
-		fi
+  local cropped_files
+  cropped_files="$(find batches/"$BATCH_NUMBER"/cropped -maxdepth 1 -name "*.png" | sort -V)"
 
-		# shellcheck disable=1090
-		. "$single_env_file"
+  # Single
+  if [ "${SINGLE:?}" = 1 ]; then
+    if [ ! -s "$single_env_file" ]; then
+      >&2 echo "FATAL: No env file found for singles batch"
+      return 1
+    fi
 
-		local single_test=$TEST
-		while read -r file; do
-			./overlay.sh single "$file"
+    # shellcheck disable=1090
+    . "$single_env_file"
 
-			# Test
-			if [ "$single_test" = 1 ]; then
-				viewnior batches/"$BATCH_NUMBER"/singles/single_-0.png
-				single_test=0
-			fi
-		done <<<"$cropped_files"
-	fi
+    local single_test=$TEST
+    while read -r file; do
+      ./overlay.sh single "$file"
 
-	# Double
-	if [ "${DOUBLE:?}" = 1 ]; then
-		if [ ! -s "$double_env_file" ]; then
-			>&2 echo "FATAL: No env file found for singles batch"
-			return 1
-		fi
+      # Test
+      if [ "$single_test" = 1 ]; then
+        viewnior batches/"$BATCH_NUMBER"/singles/single_-0.png
+        single_test=0
+      fi
+    done <<<"$cropped_files"
+  fi
 
-		# shellcheck disable=1090
-		. "$double_env_file"
+  # Double
+  if [ "${DOUBLE:?}" = 1 ]; then
+    if [ ! -s "$double_env_file" ]; then
+      >&2 echo "FATAL: No env file found for singles batch"
+      return 1
+    fi
 
-		local double_test=$TEST
+    # shellcheck disable=1090
+    . "$double_env_file"
 
-		while read -r first second; do
-			./overlay.sh double "$first" "$second"
+    local double_test=$TEST
 
-			# Test
-			if [ "$double_test" = 1 ]; then
-				viewnior batches/"$BATCH_NUMBER"/doubles/double_-0--1.png
-				double_test=0
-			fi
-		done <<<"$(echo "$cropped_files" | xargs -n2)"
-	fi
+    while read -r first second; do
+      ./overlay.sh double "$first" "$second"
+
+      # Test
+      if [ "$double_test" = 1 ]; then
+        viewnior batches/"$BATCH_NUMBER"/doubles/double_-0--1.png
+        double_test=0
+      fi
+    done <<<"$(echo "$cropped_files" | xargs -n2)"
+  fi
 }
 
 echo "${@}"
@@ -107,30 +110,30 @@ export BATCH_NUMBER="$1"
 
 case "${2:-}" in
 extract)
-	export EXTRACT=1
-	;;
+  export EXTRACT=1
+  ;;
 crop)
-	export CROP=1
-	;;
+  export CROP=1
+  ;;
 single)
-	export SINGLE=1
-	;;
+  export SINGLE=1
+  ;;
 double)
-	export DOUBLE=1
-	;;
+  export DOUBLE=1
+  ;;
 all)
-	export EXTRACT=${EXTRACT:-1}
-	export CROP=${CROP:-1}
-	export SINGLE=${SINGLE:-1}
-	export DOUBLE=${DOUBLE:-1}
-	;;
+  export EXTRACT=${EXTRACT:-1}
+  export CROP=${CROP:-1}
+  export SINGLE=${SINGLE:-1}
+  export DOUBLE=${DOUBLE:-1}
+  ;;
 '')
-	if test "${1}" = test; then
-		. ./test.env
-	else
-		echo "Specify a mode as arg 2: extract, crop, single, double, all"
-	fi
-	;;
+  if test "${1}" = test; then
+    . ./test.env
+  else
+    echo "Specify a mode as arg 2: extract, crop, single, double, all"
+  fi
+  ;;
 esac
 
 export TEST=${TEST:-0}
