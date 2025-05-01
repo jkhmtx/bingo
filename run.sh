@@ -21,7 +21,7 @@ main() {
   local double_env_file="batches/$BATCH_NUMBER/double.env"
 
   # Extract
-  if [ "${EXTRACT:-}" = 1 ]; then
+  if [ "${EXTRACT}" = 1 ]; then
     if [ ! -s "$extract_env_file" ]; then
       >&2 echo "WARNING: No env file found for extract"
     fi
@@ -34,6 +34,7 @@ main() {
     # Test
     if [ "${TEST:?}" = 1 ]; then
       viewnior batches/"$BATCH_NUMBER"/base/base-0.png
+      exit
     fi
   fi
 
@@ -52,6 +53,7 @@ main() {
     # Test
     if [ "${TEST:?}" = 1 ]; then
       viewnior batches/"$BATCH_NUMBER"/cropped/base-0.png
+      exit
     fi
   fi
 
@@ -76,6 +78,7 @@ main() {
       if [ "$single_test" = 1 ]; then
         viewnior batches/"$BATCH_NUMBER"/singles/single_-0.png
         single_test=0
+        exit
       fi
     done <<<"$cropped_files"
   fi
@@ -99,6 +102,7 @@ main() {
       if [ "$double_test" = 1 ]; then
         viewnior batches/"$BATCH_NUMBER"/doubles/double_-0--1.png
         double_test=0
+        exit
       fi
     done <<<"$(echo "$cropped_files" | xargs -n2)"
   fi
@@ -132,6 +136,7 @@ all)
     . ./test.env
   else
     echo "Specify a mode as arg 2: extract, crop, single, double, all"
+    exit 1
   fi
   ;;
 esac
