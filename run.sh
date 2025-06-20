@@ -5,6 +5,11 @@ set -euo pipefail
 trap 'echo "Error on line $LINENO"; exit 1' ERR
 trap 'echo "Exiting"; exit 0' SIGINT SIGTERM
 
+viewnior_first() {
+  dir="${1}"
+  find batches/"${BATCH_NUMBER}"/"${dir}" -type f | sort -V | head -n1 | xargs viewnior
+}
+
 main() {
   export BATCH_NUMBER TEST EXTRACT CROP SINGLE DOUBLE
 
@@ -29,12 +34,15 @@ main() {
     # shellcheck disable=1090
     . "$extract_env_file" || true
 
-    ./extract.sh
+    if [ "${TEST:?}" = 1 ]; then
+      PAGES=2 ./extract.sh
+    else
+      ./extract.sh
+    fi
 
     # Test
     if [ "${TEST:?}" = 1 ]; then
-      viewnior batches/"$BATCH_NUMBER"/base/base-0.png
-      exit
+      viewnior_first base
     fi
   fi
 
@@ -52,8 +60,7 @@ main() {
 
     # Test
     if [ "${TEST:?}" = 1 ]; then
-      viewnior batches/"$BATCH_NUMBER"/cropped/base-0.png
-      exit
+      viewnior_first cropped
     fi
   fi
 
@@ -76,7 +83,7 @@ main() {
 
       # Test
       if [ "$single_test" = 1 ]; then
-        viewnior batches/"$BATCH_NUMBER"/singles/single_-0.png
+        viewnior_first singles
         single_test=0
         exit
       fi
@@ -100,7 +107,7 @@ main() {
 
       # Test
       if [ "$double_test" = 1 ]; then
-        viewnior batches/"$BATCH_NUMBER"/doubles/double_-0--1.png
+        viewnior_first doubles
         double_test=0
         exit
       fi

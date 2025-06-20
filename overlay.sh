@@ -2,150 +2,128 @@
 
 set -euo pipefail
 
-export BATCH_NUMBER
+export BATCH_NUMBER="${BATCH_NUMBER}"
 
-get_template_filename() {
+mkdir -p ./batches/"${BATCH_NUMBER}"/{singles,doubles}
 
-	if [ -n "${TEMPLATE_FILENAME:-}" ]; then
-		echo "$TEMPLATE_FILENAME"
-		return
-	fi
-
-	local basename=./templates/${BATCH_NUMBER}
-
-	if [ -f "$basename".png ]; then
-		echo "$basename".png
-
-		return
-	fi
-
-	if [ -f "$basename".jpg ]; then
-		echo "$basename".jpg
-
-		return
-	fi
-
-	>&2 echo "INVALID TEMPLATE FILENAME"
-
-	return 1
+with_stderr() {
+	>&2 "${@}"
 }
 
 log() {
-	echo "LOG: $1" >&2
+	with_stderr echo "LOG: " "${@}"
+}
+
+get_template_filename() {
+	local filename=''
+	local no_path=./templates/${BATCH_NUMBER}
+
+	if test -n "${TEMPLATE_FILENAME:-}"; then
+		filename="$TEMPLATE_FILENAME"
+	elif [ -f "$no_path".png ]; then
+		filename="$no_path".png
+	elif test -f "$no_path".jpg; then
+		filename="$no_path".jpg
+	fi
+
+	if test -z "${filename}"; then
+		log "No $no_path.png or $no_path.jpg found"
+
+		return 1
+	fi
+
+	echo "${filename}"
 }
 
 multiply() {
 	echo "$1 * $2" | bc
 }
 
-overlay_single() {
-	local template_filename
-	template_filename="$(get_template_filename)"
+overlay() {
+	export OFFSET="${OFFSET}"
+	export SCALE="${SCALE}"
 
-	local tmpdir
-	tmpdir=$(mktemp -d)
-
-	local output_dir="${OUTPUT_DIR:-./batches/${BATCH_NUMBER:?}/singles}"
-
-	mkdir -p "$output_dir"
-
-	local first_image=$1
-
-	local first_short
-	first_short=$(short "$1")
-
-	local output_filename="single_$first_short.png"
-	local dest="$output_dir/$output_filename"
+	local template_filename="${1}"
+	local image="${2}"
 
 	local original_image_size_width original_image_size_height
-	original_image_size_width=$(magick identify -format "%w" "$first_image")
-	original_image_size_height=$(magick identify -format "%h" "$first_image")
+	original_image_size_width=$(magick identify -format "%w" "$image")
+	original_image_size_height=$(magick identify -format "%h" "$image")
 
-	local image_scale="${IMAGE_SCALE:-1.0}"
+	local resize
+	resize="$(multiply "$original_image_size_width" "${SCALE}")"x"$(multiply "$original_image_size_height" "${SCALE}")"
 
-	local image_resize="${IMAGE_RESIZE:-"$(multiply "$original_image_size_width" "$image_scale")"x"$(multiply "$original_image_size_height" "$image_scale")"}"
-	local first_image_offset="${IMAGE_OFFSET_1:--215-375}"
+	log "Using image_resize=$resize offset=${OFFSET}"
 
-	log "Using image_resize=$image_resize first_image_offset=$first_image_offset second_image_offset=${second_image_offset:-}"
-
-	echo "template_filename=$template_filename" "first_image=$first_image" "image_resize=$image_resize" "first_image_offset=$first_image_offset" "dest=$dest"
-
-	magick "$template_filename" "$first_image" \
+	magick "$template_filename" "$image" \
 		-gravity Center \
-		-geometry "$image_resize$first_image_offset" \
+		-geometry "${resize}${OFFSET}" \
 		-composite \
-		"$dest"
-
+		-
 }
 
-short() {
-	local filename
-	filename="$(basename -s .png "$1")"
+get_id() {
+	local _basename
+	_basename="$(basename "${1}")"
 
-	echo "${filename: -2}"
-}
+	local no_prefix="${_basename##*-}"
+	local no_suffix_or_prefix="${no_prefix%%.*}"
 
-overlay_double() {
-	local template_filename
-	template_filename="$(get_template_filename)"
-
-	local tmpdir
-	tmpdir=$(mktemp -d)
-
-	local output_dir="${OUTPUT_DIR:-./batches/${BATCH_NUMBER:?}/doubles}"
-
-	mkdir -p "$output_dir"
-
-	local first_image=$1
-	local second_image=$2
-	log "Group: $first_image $second_image"
-
-	local first_short
-	first_short=$(short "$1")
-	second_short=$(short "$2")
-
-	local output_filename="double_$first_short-$second_short.png"
-	local dest="$output_dir/$output_filename"
-
-	local original_image_size_width original_image_size_height
-	original_image_size_width=$(magick identify -format "%w" "$first_image")
-	original_image_size_height=$(magick identify -format "%h" "$first_image")
-
-	local image_scale="${IMAGE_SCALE:-1.0}"
-
-	local image_resize="${IMAGE_RESIZE:-"$(multiply "$original_image_size_width" "$image_scale")"x"$(multiply "$original_image_size_height" "$image_scale")"}"
-	local first_image_offset="${IMAGE_OFFSET_1:--215-375}"
-	local second_image_offset="${IMAGE_OFFSET_2:-+220+495}"
-
-	local tmp_dest="$tmpdir/$output_filename"
-
-	magick "$template_filename" "$first_image" \
-		-gravity Center \
-		-geometry "$image_resize$first_image_offset" \
-		-composite \
-		"$tmp_dest"
-
-	magick "$tmp_dest" "$second_image" \
-		-gravity Center \
-		-geometry "$image_resize$second_image_offset" \
-		-composite \
-		"$dest"
-
-	echo "$dest"
+	echo "${no_suffix_or_prefix}"
 }
 
 main() {
 	case "$1" in
 	single)
 		shift
-		overlay_single "$@"
+
+		export IMAGE_OFFSET="${IMAGE_OFFSET_1}"
+		export IMAGE_SCALE="${IMAGE_SCALE}"
+
+		local template_filename
+		template_filename="$(get_template_filename)"
+
+		local output_filename
+		output_filename="single_$(get_id "${1}").png"
+		local dest=./batches/"${BATCH_NUMBER}/singles/$output_filename"
+
+		SCALE="${IMAGE_SCALE}" \
+			OFFSET="${IMAGE_OFFSET}" \
+			overlay "${template_filename}" "${1}" >"${dest}"
+
+		echo "${dest}"
 		;;
 	double)
 		shift
-		overlay_double "$@"
+
+		export IMAGE_OFFSET_1="${IMAGE_OFFSET_1}"
+		export IMAGE_OFFSET_2="${IMAGE_OFFSET_2}"
+		export IMAGE_SCALE="${IMAGE_SCALE}"
+
+		local template_filename
+		template_filename="$(get_template_filename)"
+
+		local tmp
+		tmp="$(mktemp)"
+
+		SCALE="${IMAGE_SCALE}" \
+			OFFSET="${IMAGE_OFFSET_1}" \
+			overlay "${template_filename}" "${1}" >"${tmp}"
+
+		local output_filename
+		output_filename="double_$(get_id "${1}")-$(get_id "${2}").png"
+		local dest=./batches/"${BATCH_NUMBER}/doubles/$output_filename"
+
+		SCALE="${IMAGE_SCALE}" \
+			OFFSET="${IMAGE_OFFSET_2}" \
+			overlay "${tmp}" "${2}" >"${dest}"
+
+		rm "${tmp}"
+
+		echo "${dest}"
 		;;
 	*)
-		>&2 echo "Must use single or double as first arg"
+		log "Must use single or double as first arg"
 
 		return 1
 		;;
