@@ -4,8 +4,6 @@ set -euo pipefail
 
 export BATCH_NUMBER="${BATCH_NUMBER}"
 
-mkdir -p ./batches/"${BATCH_NUMBER}"/{singles,doubles}
-
 with_stderr() {
 	>&2 "${@}"
 }

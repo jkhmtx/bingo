@@ -6,13 +6,20 @@ log() {
   >&2 echo "${@}"
 }
 
+export EXTRACT="${EXTRACT:-0}"
 export BATCH_NUMBER="${BATCH_NUMBER}"
 export DENSITY="${DENSITY:-300}"
 export RESIZE_PERCENTAGE="${RESIZE_PERCENTAGE:-25%}"
-echo "pagenum ${PAGE_NUMBER:-}"
 
 batch_dir=batches/"${BATCH_NUMBER}"
-mkdir -p "${batch_dir}"/base
+
+if test "${EXTRACT}" -ne 1; then
+  exit 0
+fi
+
+if test "${TEST:-}" = 1; then
+  PAGES=2
+fi
 
 function extract() {
   if test -n "${1:-}"; then
@@ -55,3 +62,12 @@ find "${batch_dir}" \
     -0 \
     -I'{}' \
     mv '{}' "${batch_dir}"/base/
+
+viewnior_first() {
+  dir="${1}"
+  find batches/"${BATCH_NUMBER}"/"${dir}" -type f | sort -V | head -n1 | xargs viewnior
+}
+
+if test "${TEST:-}" = 1; then
+  viewnior_first base
+fi
