@@ -14,7 +14,7 @@ log() {
 
 get_template_filename() {
 	local filename=''
-	local no_path=./templates/${BATCH_NUMBER}
+	local no_path=./bingo/templates/${BATCH_NUMBER}
 
 	if test -n "${TEMPLATE_FILENAME:-}"; then
 		filename="$TEMPLATE_FILENAME"
@@ -83,7 +83,7 @@ main() {
 
 		local output_filename
 		output_filename="single_$(get_id "${1}").png"
-		local dest=./batches/"${BATCH_NUMBER}/singles/$output_filename"
+		local dest=./bingo/batches/"${BATCH_NUMBER}/singles/$output_filename"
 
 		SCALE="${IMAGE_SCALE}" \
 			OFFSET="${IMAGE_OFFSET}" \
@@ -110,7 +110,7 @@ main() {
 
 		local output_filename
 		output_filename="double_$(get_id "${1}")-$(get_id "${2}").png"
-		local dest=./batches/"${BATCH_NUMBER}/doubles/$output_filename"
+		local dest=./bingo/batches/"${BATCH_NUMBER}/doubles/$output_filename"
 
 		SCALE="${IMAGE_SCALE}" \
 			OFFSET="${IMAGE_OFFSET_2}" \

@@ -14,7 +14,7 @@ log() {
 
 get_template_filename() {
 	local filename=''
-	local no_path=./templates/${BATCH_NUMBER}
+	local no_path=./bingo/templates/${BATCH_NUMBER}
 
 	if test -n "${TEMPLATE_FILENAME:-}"; then
 		filename="$TEMPLATE_FILENAME"

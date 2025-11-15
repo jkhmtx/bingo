@@ -12,14 +12,14 @@ if test "${CROP}" -ne 1; then
 fi
 
 (
-	cd batches/"${BATCH_NUMBER}"
+	cd ./bingo/batches/"${BATCH_NUMBER}"
 	# shellcheck disable=2011
-	ls base | xargs -I'{}' magick base/'{}' -crop "${CROP_SIZE}"+"${CROP_OFFSET}" cropped/{}
+	ls base | xargs -I'{}' magick ./bingo/base/'{}' -crop "${CROP_SIZE}"+"${CROP_OFFSET}" ./bingo/cropped/{}
 )
 
 viewnior_first() {
 	dir="${1}"
-	find batches/"${BATCH_NUMBER}"/"${dir}" -type f | sort -V | head -n1 | xargs viewnior
+	find ./bingo/batches/"${BATCH_NUMBER}"/"${dir}" -type f | sort -V | head -n1 | xargs viewnior
 }
 
 if test "${TEST:-}" = 1; then

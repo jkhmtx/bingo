@@ -3,38 +3,34 @@
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-unstable";
-    flake-utils.url = "github:numtide/flake-utils";
   };
 
-  outputs = {
-    self,
-    nixpkgs,
-    flake-utils,
-  }:
-    flake-utils.lib.eachDefaultSystem
-    (
-      system: let
-        pkgs = import nixpkgs {
-          inherit system;
+  outputs = {nixpkgs, ...}: let
+    system = "x86_64-linux";
 
-          config.packageOverrides = pkgs: {
-            imagemagickBig = pkgs.imagemagick.override {
-              libpngSupport = true;
-            };
-          };
+    pkgs = import nixpkgs {
+      inherit system;
+
+      config.packageOverrides = pkgs: {
+        imagemagickBig = pkgs.imagemagick.override {
+          libpngSupport = true;
         };
-      in {
-        devShells = {
-          default = pkgs.mkShell {
-            buildInputs = [
-              pkgs.bc
-              pkgs.viewnior
-              pkgs.ghostscript
-              pkgs.imagemagickBig
-              pkgs.mprocs
-            ];
-          };
-        };
-      }
-    );
+      };
+    };
+
+    package = import ./nix/package.nix projectInputs;
+
+    projectInputs = {
+      inherit package;
+      inherit pkgs;
+      projectNamespace = import ./nix/project.nix projectInputs;
+    };
+
+    devShell = import ./nix/dev-shell.nix projectInputs;
+  in
+    {
+      inherit devShell;
+      packages."${system}".default = package;
+    }
+    // projectInputs.projectNamespace;
 }
