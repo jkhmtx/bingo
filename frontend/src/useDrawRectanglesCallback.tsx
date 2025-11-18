@@ -1,8 +1,6 @@
-import type { Box, ViewState } from "./Canvas";
 import { defineCanvasCallback } from "./defineCanvasCallback";
-
-const INITIAL_W_PX = 227;
-const INITIAL_H_PX = 262;
+import { INITIAL_H_PX, INITIAL_W_PX } from "./constant";
+import type { Box, ViewState } from "./ViewState";
 
 function drawBox(ctx: CanvasRenderingContext2D, box: Box) {
   const w = box.scale * INITIAL_W_PX;

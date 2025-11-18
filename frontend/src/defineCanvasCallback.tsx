@@ -1,4 +1,5 @@
 import { type RefObject, type DependencyList, useCallback } from "react";
+import { canvasOrNone } from "./canvasOrNone";
 
 export function defineCanvasCallback<TProps = undefined, T = void>(
   cb: (
@@ -38,15 +39,15 @@ export function defineCanvasCallback(
     return useCallback(() => {
       return new Promise<unknown>((resolve) => {
         console.time(debugId);
-        const canvas = ref.current;
-        const ctx = canvas?.getContext("2d");
+        const canvas = canvasOrNone(ref);
 
-        if (!canvas || !ctx) {
+        if (!canvas) {
           return;
         }
 
-        const res = cb({ canvas, ctx }, props);
+        const res = cb(canvas, props);
         console.timeEnd(debugId);
+
         resolve(res);
       });
     }, deps ?? []);
