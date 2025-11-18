@@ -2,6 +2,7 @@ import { useEffect, useReducer, useRef } from "react";
 import { useDrawBackgroundImageCallback } from "./useDrawBackgroundImageCallback";
 import { useRedrawCallback } from "./useRedrawCallback";
 import { useDrawRectanglesCallback } from "./useDrawRectanglesCallback";
+import { useGettingImageMemo } from "./useGettingImageMemo";
 
 type CanvasProps = {
   imageUri: string;
@@ -11,39 +12,48 @@ export type Box = {
   x: number;
   y: number;
   scale: number;
-  color: "red" | "green";
+  color: "red" | "green" | "blue";
 };
 
 type BoxState = [Box, Box];
 
-export type ViewState =
-  | {
-      type: "single";
-      boxes: BoxState;
-    }
-  | {
-      type: "double";
-      boxes: BoxState;
-    };
+type ViewData = {
+  single: [Box];
+  double: BoxState;
+};
+
+export type ViewState = {
+  type: "single" | "double";
+} & ViewData;
 
 type ViewAction = {
   type: "toggle-view";
 };
 
-const INITIAL_BOXES: BoxState = [
-  {
-    x: 100,
-    y: 100,
-    scale: 1,
-    color: "red",
-  },
-  {
-    x: 200,
-    y: 100,
-    scale: 1,
-    color: "green",
-  },
-];
+const INITIAL_BOXES: ViewData = {
+  single: [
+    {
+      x: 100,
+      y: 100,
+      scale: 1,
+      color: "blue",
+    },
+  ],
+  double: [
+    {
+      x: 200,
+      y: 100,
+      scale: 1,
+      color: "green",
+    },
+    {
+      x: 500,
+      y: 100,
+      scale: 1,
+      color: "red",
+    },
+  ],
+};
 
 export function Canvas({ imageUri }: CanvasProps) {
   const ref = useRef<HTMLCanvasElement>(null);
@@ -53,7 +63,7 @@ export function Canvas({ imageUri }: CanvasProps) {
       switch (action.type) {
         case "toggle-view": {
           const isSingle = state.type === "single";
-          return { type: isSingle ? "double" : "single", boxes: state.boxes };
+          return { ...state, type: isSingle ? "double" : "single" };
         }
         default: {
           throw new Error("Unhandled");
@@ -62,20 +72,24 @@ export function Canvas({ imageUri }: CanvasProps) {
     },
     {
       type: "single",
-      boxes: INITIAL_BOXES,
+      ...INITIAL_BOXES,
     },
   );
 
+  const gettingImage = useGettingImageMemo(imageUri);
+
   const redraw = useRedrawCallback(ref);
-  const renderImage = useDrawBackgroundImageCallback(ref, { imageUri }, [
+  const renderImage = useDrawBackgroundImageCallback(ref, { gettingImage }, [
     imageUri,
   ]);
   const drawRectangles = useDrawRectanglesCallback(ref, { state }, [state]);
 
   useEffect(() => {
-    for (const cb of [redraw, renderImage, drawRectangles]) {
-      cb();
-    }
+    (async () => {
+      for (const cb of [redraw, renderImage, drawRectangles]) {
+        await cb();
+      }
+    })();
   }, [redraw, renderImage, drawRectangles]);
 
   return (

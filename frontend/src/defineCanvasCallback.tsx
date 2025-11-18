@@ -1,24 +1,25 @@
 import { type RefObject, type DependencyList, useCallback } from "react";
 
-export function defineCanvasCallback<TProps = undefined>(
+export function defineCanvasCallback<TProps = undefined, T = void>(
   cb: (
     {
       canvas,
       ctx,
     }: { canvas: HTMLCanvasElement; ctx: CanvasRenderingContext2D },
     props: TProps,
-  ) => void,
+  ) => T,
+  debugId: string,
 ): TProps extends undefined
   ? (
       ref: RefObject<HTMLCanvasElement | null>,
       props?: undefined,
       deps?: undefined,
-    ) => () => void
+    ) => () => Promise<T>
   : (
       ref: RefObject<HTMLCanvasElement | null>,
       props: TProps,
       deps: DependencyList,
-    ) => () => void;
+    ) => () => Promise<T>;
 export function defineCanvasCallback(
   cb: (
     {
@@ -26,22 +27,28 @@ export function defineCanvasCallback(
       ctx,
     }: { canvas: HTMLCanvasElement; ctx: CanvasRenderingContext2D },
     props: unknown,
-  ) => () => void,
+  ) => unknown,
+  debugId: string,
 ): (
   ref: RefObject<HTMLCanvasElement | null>,
   props?: unknown,
   deps?: DependencyList,
-) => () => void {
+) => () => Promise<unknown> {
   return (ref, props, deps) => {
     return useCallback(() => {
-      const canvas = ref.current;
-      const ctx = canvas?.getContext("2d");
+      return new Promise<unknown>((resolve) => {
+        console.time(debugId);
+        const canvas = ref.current;
+        const ctx = canvas?.getContext("2d");
 
-      if (!canvas || !ctx) {
-        return;
-      }
+        if (!canvas || !ctx) {
+          return;
+        }
 
-      cb({ canvas, ctx }, props);
+        const res = cb({ canvas, ctx }, props);
+        console.timeEnd(debugId);
+        resolve(res);
+      });
     }, deps ?? []);
   };
 }

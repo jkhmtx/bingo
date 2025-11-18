@@ -1,21 +1,17 @@
 import { defineCanvasCallback } from "./defineCanvasCallback";
 
 export type UseRenderImageEffectProps = {
-  imageUri: string;
+  gettingImage: Promise<HTMLImageElement>;
 };
 
 export const useDrawBackgroundImageCallback =
   defineCanvasCallback<UseRenderImageEffectProps>(
-    ({ canvas, ctx }, { imageUri }) => {
-      const image = new Image();
+    async ({ canvas, ctx }, { gettingImage }) => {
+      const image = await gettingImage;
+      canvas.width = image.width;
+      canvas.height = image.height;
 
-      image.src = imageUri;
-
-      image.onload = () => {
-        canvas.width = image.width;
-        canvas.height = image.height;
-
-        ctx.drawImage(image, 0, 0);
-      };
+      ctx.drawImage(image, 0, 0);
     },
+    "useDrawBackgroundImageCallback",
   );
