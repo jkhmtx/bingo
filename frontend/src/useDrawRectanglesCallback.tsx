@@ -13,7 +13,7 @@ function drawBox(ctx: CanvasRenderingContext2D, box: Box) {
 export const useDrawRectanglesCallback = defineCanvasCallback<{
   state: ViewState;
 }>(({ ctx }, { state }) => {
-  const boxes = state.type === "single" ? state.single : state.double;
+  const boxes = state.visible.map((id) => state.boxes[id]);
 
   for (const box of boxes) {
     drawBox(ctx, box);
