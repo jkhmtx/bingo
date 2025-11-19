@@ -74,12 +74,32 @@ export function useViewStateReducer(ref: RefObject<HTMLCanvasElement | null>) {
           return { ...state, visible };
         }
         case "mouse-down": {
-          const box = getBoxUnderMousedown(
-            ref,
-            state.visible.map((id) => state.boxes[id]),
+          const canvas = canvasOrNone(ref)?.canvas;
+
+          if (!canvas) {
+            return state;
+          }
+
+          const { x: mouseX, y: mouseY } = getMouseRelativePosition(
+            canvas,
             action.x,
             action.y,
           );
+
+          const box = state.visible
+            .map((id) => state.boxes[id])
+            .find((box) => {
+              const boxW = box.scale * INITIAL_W_PX;
+              const boxH = box.scale * INITIAL_H_PX;
+
+              const outsideBoundingBox =
+                mouseX < box.x ||
+                mouseX > box.x + boxW ||
+                mouseY < box.y ||
+                mouseY > box.y + boxH;
+
+              return !outsideBoundingBox;
+            });
 
           if (!box) {
             return state;
@@ -107,6 +127,7 @@ export function useViewStateReducer(ref: RefObject<HTMLCanvasElement | null>) {
           const { x, y } = action;
 
           const relativeMousePosition = getMouseRelativePosition(canvas, x, y);
+
           const w = box.scale * INITIAL_W_PX;
           const h = box.scale * INITIAL_H_PX;
           box.x = relativeMousePosition.x - w / 2;
@@ -140,32 +161,4 @@ function getMouseRelativePosition(
 ): { x: number; y: number } {
   const canvasBoundingBox = canvas.getBoundingClientRect();
   return { x: x - canvasBoundingBox.left, y: y - canvasBoundingBox.top };
-}
-
-function getBoxUnderMousedown(
-  ref: RefObject<HTMLCanvasElement | null>,
-  boxes: Box[],
-  x: number,
-  y: number,
-) {
-  const canvas = canvasOrNone(ref)?.canvas;
-
-  if (!canvas) {
-    return;
-  }
-
-  const { x: mouseX, y: mouseY } = getMouseRelativePosition(canvas, x, y);
-
-  return boxes.find((box) => {
-    const boxW = box.scale * INITIAL_W_PX;
-    const boxH = box.scale * INITIAL_H_PX;
-
-    const outsideBoundingBox =
-      mouseX < box.x ||
-      mouseX > box.x + boxW ||
-      mouseY < box.y ||
-      mouseY > box.y + boxH;
-
-    return !outsideBoundingBox;
-  });
 }

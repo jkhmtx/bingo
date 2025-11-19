@@ -10,7 +10,7 @@ function App() {
     <>
       <h1>Bingo</h1>
       <div className="card">
-        <ImageUpload setImageUri={setImageUri} imageUri={imageUri ?? ""} />
+        <ImageUpload setImageUri={setImageUri} />
       </div>
       {imageUri && <Canvas imageUri={imageUri} />}
     </>

@@ -1,9 +1,8 @@
 type ImageUploadProps = {
-  imageUri: string;
   setImageUri: (file: string) => void;
 };
 
-export function ImageUpload({ imageUri, setImageUri }: ImageUploadProps) {
+export function ImageUpload({ setImageUri }: ImageUploadProps) {
   return (
     <>
       <label htmlFor="background">Choose a profile picture:</label>
@@ -13,7 +12,6 @@ export function ImageUpload({ imageUri, setImageUri }: ImageUploadProps) {
         alt="Background Image"
         name="background"
         accept="image/png, image/jpeg"
-        onSubmit={console.log}
         onChange={(e) => {
           const file = e.target.files?.[0];
           if (!file) {
