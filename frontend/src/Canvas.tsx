@@ -3,11 +3,17 @@ import { useDrawRectanglesCallback } from "./useDrawRectanglesCallback";
 import { useEffect, useRef } from "react";
 import { useGettingImageMemo } from "./useGettingImageMemo";
 import { useRedrawCallback } from "./useRedrawCallback";
-import { useViewStateReducer } from "./ViewState";
+import { useViewStateReducer, type ViewState } from "./ViewState";
 
 type CanvasProps = {
   imageUri: string;
 };
+
+function submit(state: ViewState) {
+  const boxes = state.visible.map((id) => state.boxes[id]);
+
+  console.log(JSON.stringify(boxes, null, 2));
+}
 
 export function Canvas({ imageUri }: CanvasProps) {
   const ref = useRef<HTMLCanvasElement>(null);
@@ -34,6 +40,9 @@ export function Canvas({ imageUri }: CanvasProps) {
     <>
       <button type="button" onClick={() => dispatch({ type: "toggle-view" })}>
         Switch View
+      </button>
+      <button type="button" onClick={() => submit(state)}>
+        Submit
       </button>
       <canvas
         className="canvas"

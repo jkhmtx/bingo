@@ -160,5 +160,6 @@ function getMouseRelativePosition(
   y: number,
 ): { x: number; y: number } {
   const canvasBoundingBox = canvas.getBoundingClientRect();
+
   return { x: x - canvasBoundingBox.left, y: y - canvasBoundingBox.top };
 }
