@@ -1,6 +1,6 @@
 import { useDrawBackgroundImageCallback } from "./useDrawBackgroundImageCallback";
 import { useDrawRectanglesCallback } from "./useDrawRectanglesCallback";
-import { useEffect, useRef } from "react";
+import { useEffect, useLayoutEffect, useRef } from "react";
 import { useGettingImageMemo } from "./useGettingImageMemo";
 import { useRedrawCallback } from "./useRedrawCallback";
 import { useViewStateReducer, type ViewState } from "./ViewState";
@@ -37,32 +37,35 @@ export function Canvas({ imageUri }: CanvasProps) {
   }, [redraw, renderImage, drawRectangles]);
 
   return (
-    <>
-      {([1, 2, 3, 4] as const).map((view) => (
-        <button
-          key={view}
-          type="button"
-          onClick={() => dispatch({ type: "set-view", view })}
-        >
-          {view}
+    <div className="canvas">
+      <div className="button-bar">
+        {([1, 2, 3, 4] as const).map((view) => (
+          <button
+            key={view}
+            type="button"
+            onClick={() => dispatch({ type: "set-view", view })}
+          >
+            {view}
+          </button>
+        ))}
+        <button className="submit" type="button" onClick={() => submit(state)}>
+          Download
         </button>
-      ))}
-      <button type="button" onClick={() => submit(state)}>
-        Submit
-      </button>
-      <canvas
-        className="canvas"
-        ref={ref}
-        onMouseDown={(e) =>
-          dispatch({ type: "mouse-down", x: e.clientX, y: e.clientY })
-        }
-        onMouseMove={(e) =>
-          dispatch({ type: "mouse-move", x: e.clientX, y: e.clientY })
-        }
-        onMouseUp={(e) =>
-          dispatch({ type: "mouse-up", x: e.clientX, y: e.clientY })
-        }
-      ></canvas>
-    </>
+      </div>
+      <div className="canvas__container">
+        <canvas
+          ref={ref}
+          onMouseDown={(e) =>
+            dispatch({ type: "mouse-down", x: e.clientX, y: e.clientY })
+          }
+          onMouseMove={(e) =>
+            dispatch({ type: "mouse-move", x: e.clientX, y: e.clientY })
+          }
+          onMouseUp={(e) =>
+            dispatch({ type: "mouse-up", x: e.clientX, y: e.clientY })
+          }
+        ></canvas>
+      </div>
+    </div>
   );
 }

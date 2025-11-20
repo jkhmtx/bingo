@@ -8,10 +8,7 @@ function App() {
 
   return (
     <>
-      <h1>Bingo</h1>
-      <div className="card">
-        <ImageUpload setImageUri={setImageUri} />
-      </div>
+      <ImageUpload setImageUri={setImageUri} />
       {imageUri && <Canvas imageUri={imageUri} />}
     </>
   );
