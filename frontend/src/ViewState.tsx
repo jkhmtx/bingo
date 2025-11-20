@@ -19,7 +19,12 @@ type ViewData = {
 export type ViewState = ViewData &
   (
     | {
-        mode: `drag`;
+        mode: "drag";
+        id: BoxId;
+        startingPosition: { x: number; y: number };
+      }
+    | {
+        mode: "resize";
         id: BoxId;
         startingPosition: { x: number; y: number };
       }
@@ -62,6 +67,14 @@ const INITIAL_BOXES: ViewData = {
   },
 };
 
+function isOutsideBoundingBox(
+  x: number,
+  y: number,
+  box: { x: number; y: number; w: number; h: number },
+) {
+  return x < box.x || x > box.x + box.w || y < box.y || y > box.y + box.h;
+}
+
 export function useViewStateReducer(ref: RefObject<HTMLCanvasElement | null>) {
   return useReducer<ViewState, [ViewAction]>(
     (state, action) => {
@@ -88,26 +101,41 @@ export function useViewStateReducer(ref: RefObject<HTMLCanvasElement | null>) {
 
           const box = state.visible
             .map((id) => state.boxes[id])
-            .find((box) => {
+            .map((box) => {
               const boxW = box.scale * INITIAL_W_PX;
               const boxH = box.scale * INITIAL_H_PX;
 
-              const outsideBoundingBox =
-                mouseX < box.x ||
-                mouseX > box.x + boxW ||
-                mouseY < box.y ||
-                mouseY > box.y + boxH;
+              const boxInfo = { x: box.x, y: box.y, w: boxW, h: boxH };
 
-              return !outsideBoundingBox;
-            });
+              if (isOutsideBoundingBox(mouseX, mouseY, boxInfo)) {
+                return undefined;
+              }
+
+              return { ...box, ...boxInfo };
+            })
+            .filter(Boolean)
+            .at(0);
 
           if (!box) {
             return state;
           }
 
+          console.log(box.scale);
+
+          const isOutsideResizeBoundingBox = isOutsideBoundingBox(
+            mouseX,
+            mouseY,
+            {
+              x: box.x + box.w * 0.8,
+              y: box.y + box.h * 0.8,
+              w: box.w * 0.2,
+              h: box.h * 0.2,
+            },
+          );
+
           return {
             ...state,
-            mode: "drag",
+            mode: isOutsideResizeBoundingBox ? "drag" : "resize",
             id: box.color,
             startingPosition: { x: action.x, y: action.y },
           };
@@ -122,18 +150,61 @@ export function useViewStateReducer(ref: RefObject<HTMLCanvasElement | null>) {
             return state;
           }
 
-          const box = state.boxes[state.id];
+          switch (state.mode) {
+            case "resize": {
+              const box = state.boxes[state.id];
 
-          const { x, y } = action;
+              const { x, y } = action;
 
-          const relativeMousePosition = getMouseRelativePosition(canvas, x, y);
+              const relativeMousePosition = getMouseRelativePosition(
+                canvas,
+                x,
+                y,
+              );
 
-          const w = box.scale * INITIAL_W_PX;
-          const h = box.scale * INITIAL_H_PX;
-          box.x = relativeMousePosition.x - w / 2;
-          box.y = relativeMousePosition.y - h / 2;
+              // minimization function where we take the derivative of
+              // the distance equation for two points, and set the derivative
+              // equal to zero.
 
-          return { ...state };
+              // Solving for x:
+              // x = (x0 + m * y0) / (1 + m * m)
+
+              // This is not quite right - there's a weird jump when we start the mousemove
+              // event...?
+              const slope = INITIAL_H_PX / INITIAL_W_PX;
+
+              const bottomRightCornerX =
+                relativeMousePosition.x +
+                (slope * relativeMousePosition.y) / (1 + slope * slope);
+
+              const scale = (bottomRightCornerX - box.x) / INITIAL_W_PX;
+
+              for (const anyBox of state.visible.map((id) => state.boxes[id])) {
+                // Don't allow really small or negative scale
+                anyBox.scale = Math.max(scale, 0.5);
+              }
+
+              return { ...state };
+            }
+            case "drag": {
+              const box = state.boxes[state.id];
+
+              const { x, y } = action;
+
+              const relativeMousePosition = getMouseRelativePosition(
+                canvas,
+                x,
+                y,
+              );
+
+              const w = box.scale * INITIAL_W_PX;
+              const h = box.scale * INITIAL_H_PX;
+              box.x = relativeMousePosition.x - w / 2;
+              box.y = relativeMousePosition.y - h / 2;
+
+              return { ...state };
+            }
+          }
         }
         case "mouse-up": {
           return {

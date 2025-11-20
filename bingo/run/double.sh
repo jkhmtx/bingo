@@ -12,7 +12,7 @@ viewnior_first() {
 	find ./bingo/batches/"${BATCH_NUMBER}"/"${dir}" -type f | sort -V | head -n1 | xargs viewnior
 }
 
-cropped_files="$(find batches/"${BATCH_NUMBER}"/cropped -maxdepth 1 -name "*.png" | sort -V)"
+cropped_files="$(find ./bingo/batches/"${BATCH_NUMBER}"/cropped -maxdepth 1 -name "*.png" | sort -V)"
 while read -r first second; do
 	./bingo/run/overlay.sh double "$first" "$second"
 

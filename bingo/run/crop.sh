@@ -13,8 +13,9 @@ fi
 
 (
 	cd ./bingo/batches/"${BATCH_NUMBER}"
-	# shellcheck disable=2011
-	ls base | xargs -I'{}' magick ./bingo/base/'{}' -crop "${CROP_SIZE}"+"${CROP_OFFSET}" ./bingo/cropped/{}
+	for file in base/*; do
+		magick "${file}" -crop "${CROP_SIZE}"+"${CROP_OFFSET}" ./cropped/"$(basename "${file}")"
+	done
 )
 
 viewnior_first() {
