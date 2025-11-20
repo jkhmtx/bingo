@@ -78,7 +78,6 @@ function isOutsideBoundingBox(
 export function useViewStateReducer(ref: RefObject<HTMLCanvasElement | null>) {
   return useReducer<ViewState, [ViewAction]>(
     (state, action) => {
-      console.log(action.type);
       switch (action.type) {
         case "toggle-view": {
           const visible: BoxId[] =
@@ -119,8 +118,6 @@ export function useViewStateReducer(ref: RefObject<HTMLCanvasElement | null>) {
           if (!box) {
             return state;
           }
-
-          console.log(box.scale);
 
           const isOutsideResizeBoundingBox = isOutsideBoundingBox(
             mouseX,

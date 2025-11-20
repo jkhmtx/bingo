@@ -20,12 +20,12 @@ export function Canvas({ imageUri }: CanvasProps) {
 
   const [state, dispatch] = useViewStateReducer(ref);
 
-  const gettingImage = useGettingImageMemo(imageUri);
-
   const redraw = useRedrawCallback(ref);
-  const renderImage = useDrawBackgroundImageCallback(ref, { gettingImage }, [
-    imageUri,
-  ]);
+  const renderImage = useDrawBackgroundImageCallback(
+    ref,
+    { gettingImage: useGettingImageMemo(imageUri) },
+    [imageUri],
+  );
   const drawRectangles = useDrawRectanglesCallback(ref, { state }, [state]);
 
   useEffect(() => {
