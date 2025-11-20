@@ -2,17 +2,19 @@ import { useReducer, type RefObject } from "react";
 import { canvasOrNone } from "./canvasOrNone";
 import { INITIAL_W_PX, INITIAL_H_PX } from "./constant";
 
-type BoxColor = "red" | "green" | "blue";
-type BoxId = BoxColor;
+type BoxId = `${number}-${number}`;
 
 export type Box = {
   x: number;
   y: number;
   scale: number;
-  color: BoxColor;
 };
 type ViewData = {
   visible: BoxId[];
+  1: BoxId[];
+  2: BoxId[];
+  3: BoxId[];
+  4: BoxId[];
   boxes: Record<BoxId, Box>;
 };
 
@@ -35,7 +37,8 @@ export type ViewState = ViewData &
 
 type ViewAction =
   | {
-      type: "toggle-view";
+      type: "set-view";
+      view: 1 | 2 | 3 | 4;
     }
   | {
       type: "mouse-down" | "mouse-move" | "mouse-up";
@@ -44,25 +47,61 @@ type ViewAction =
     };
 
 const INITIAL_BOXES: ViewData = {
-  visible: ["blue"],
+  visible: ["1-1"],
+  1: ["1-1"],
+  2: ["2-1", "2-2"],
+  3: ["3-1", "3-2", "3-3"],
+  4: ["4-1", "4-2", "4-3", "4-4"],
   boxes: {
-    blue: {
+    "1-1": {
       x: 100,
       y: 100,
       scale: 1,
-      color: "blue",
     },
-    green: {
+    "2-1": {
       x: 200,
       y: 100,
       scale: 1,
-      color: "green",
     },
-    red: {
+    "2-2": {
       x: 500,
       y: 100,
       scale: 1,
-      color: "red",
+    },
+    "3-1": {
+      x: 200,
+      y: 100,
+      scale: 1,
+    },
+    "3-2": {
+      x: 500,
+      y: 100,
+      scale: 1,
+    },
+    "3-3": {
+      x: 300,
+      y: 300,
+      scale: 1,
+    },
+    "4-1": {
+      x: 200,
+      y: 100,
+      scale: 1,
+    },
+    "4-2": {
+      x: 500,
+      y: 100,
+      scale: 1,
+    },
+    "4-3": {
+      x: 300,
+      y: 300,
+      scale: 1,
+    },
+    "4-4": {
+      x: 400,
+      y: 400,
+      scale: 1,
     },
   },
 };
@@ -79,11 +118,8 @@ export function useViewStateReducer(ref: RefObject<HTMLCanvasElement | null>) {
   return useReducer<ViewState, [ViewAction]>(
     (state, action) => {
       switch (action.type) {
-        case "toggle-view": {
-          const visible: BoxId[] =
-            state.visible.length === 1 ? ["red", "green"] : ["blue"];
-
-          return { ...state, visible };
+        case "set-view": {
+          return { ...state, visible: state[action.view] };
         }
         case "mouse-down": {
           const canvas = canvasOrNone(ref)?.canvas;
@@ -99,12 +135,12 @@ export function useViewStateReducer(ref: RefObject<HTMLCanvasElement | null>) {
           );
 
           const box = state.visible
-            .map((id) => state.boxes[id])
-            .map((box) => {
+            .map((id) => [id, state.boxes[id]] as const)
+            .map(([id, box]) => {
               const boxW = box.scale * INITIAL_W_PX;
               const boxH = box.scale * INITIAL_H_PX;
 
-              const boxInfo = { x: box.x, y: box.y, w: boxW, h: boxH };
+              const boxInfo = { id, x: box.x, y: box.y, w: boxW, h: boxH };
 
               if (isOutsideBoundingBox(mouseX, mouseY, boxInfo)) {
                 return undefined;
@@ -133,7 +169,7 @@ export function useViewStateReducer(ref: RefObject<HTMLCanvasElement | null>) {
           return {
             ...state,
             mode: isOutsideResizeBoundingBox ? "drag" : "resize",
-            id: box.color,
+            id: box.id,
             startingPosition: { x: action.x, y: action.y },
           };
         }
@@ -208,6 +244,10 @@ export function useViewStateReducer(ref: RefObject<HTMLCanvasElement | null>) {
             mode: "none",
             visible: state.visible,
             boxes: state.boxes,
+            1: state[1],
+            2: state[2],
+            3: state[3],
+            4: state[4],
           };
         }
         default: {

@@ -63,17 +63,6 @@ function drawBox(ctx: CanvasRenderingContext2D, box: Box) {
   }
 }
 
-function drawOutline(ctx: CanvasRenderingContext2D, box: Box) {
-  const w = box.scale * INITIAL_W_PX;
-  const h = box.scale * INITIAL_H_PX;
-
-  ctx.fillStyle = box.color;
-  ctx.fillRect(box.x, box.y, w, 2);
-  ctx.fillRect(box.x, box.y, 2, h);
-  ctx.fillRect(box.x + w, box.y, 2, h);
-  ctx.fillRect(box.x, box.y + h, w, 2);
-}
-
 function drawResizeHandle(ctx: CanvasRenderingContext2D, box: Box) {
   const w = box.scale * INITIAL_W_PX;
   const h = box.scale * INITIAL_H_PX;
@@ -93,7 +82,6 @@ export const useDrawRectanglesCallback = defineCanvasCallback<{
 
   for (const box of boxes) {
     drawBox(ctx, box);
-    drawOutline(ctx, box);
     drawResizeHandle(ctx, box);
   }
 }, "useDrawRectanglesCallback");

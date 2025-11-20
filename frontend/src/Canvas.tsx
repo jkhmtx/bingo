@@ -38,9 +38,15 @@ export function Canvas({ imageUri }: CanvasProps) {
 
   return (
     <>
-      <button type="button" onClick={() => dispatch({ type: "toggle-view" })}>
-        Switch View
-      </button>
+      {([1, 2, 3, 4] as const).map((view) => (
+        <button
+          key={view}
+          type="button"
+          onClick={() => dispatch({ type: "set-view", view })}
+        >
+          {view}
+        </button>
+      ))}
       <button type="button" onClick={() => submit(state)}>
         Submit
       </button>
