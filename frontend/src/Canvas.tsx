@@ -1,71 +1,55 @@
 import { useDrawBackgroundImageCallback } from "./useDrawBackgroundImageCallback";
-import { useDrawRectanglesCallback } from "./useDrawRectanglesCallback";
-import { useEffect, useLayoutEffect, useRef } from "react";
+import { useDrawResizableBoxesCallback } from "./useDrawResizableBoxesCallback";
+import { useEffect, type RefObject } from "react";
 import { useGettingImageMemo } from "./useGettingImageMemo";
 import { useRedrawCallback } from "./useRedrawCallback";
-import { useViewStateReducer, type ViewState } from "./ViewState";
+import type { Box } from "./ViewState";
+
+type OnMouseEvent = (e: { clientX: number; clientY: number }) => void;
 
 type CanvasProps = {
+  boxes: Box[];
   imageUri: string;
+  onMouseDown: OnMouseEvent;
+  onMouseMove: OnMouseEvent;
+  onMouseUp: OnMouseEvent;
+  ref: RefObject<HTMLCanvasElement | null>;
 };
 
-function submit(state: ViewState) {
-  const boxes = state.visible.map((id) => state.boxes[id]);
-
-  console.log(JSON.stringify(boxes, null, 2));
-}
-
-export function Canvas({ imageUri }: CanvasProps) {
-  const ref = useRef<HTMLCanvasElement>(null);
-
-  const [state, dispatch] = useViewStateReducer(ref);
-
+export function Canvas({
+  boxes,
+  imageUri,
+  onMouseDown,
+  onMouseMove,
+  onMouseUp,
+  ref,
+}: CanvasProps) {
   const redraw = useRedrawCallback(ref);
   const renderImage = useDrawBackgroundImageCallback(
     ref,
     { gettingImage: useGettingImageMemo(imageUri) },
     [imageUri],
   );
-  const drawRectangles = useDrawRectanglesCallback(ref, { state }, [state]);
+  const drawResizableBoxes = useDrawResizableBoxesCallback(ref, { boxes }, [
+    boxes,
+  ]);
 
   useEffect(() => {
     (async () => {
-      for (const cb of [redraw, renderImage, drawRectangles]) {
+      for (const cb of [redraw, renderImage, drawResizableBoxes]) {
         await cb();
       }
     })();
-  }, [redraw, renderImage, drawRectangles]);
+  }, [redraw, renderImage, drawResizableBoxes]);
 
   return (
-    <div className="canvas">
-      <div className="button-bar">
-        {([1, 2, 3, 4] as const).map((view) => (
-          <button
-            key={view}
-            type="button"
-            onClick={() => dispatch({ type: "set-view", view })}
-          >
-            {view}
-          </button>
-        ))}
-        <button className="submit" type="button" onClick={() => submit(state)}>
-          Download
-        </button>
-      </div>
-      <div className="canvas__container">
-        <canvas
-          ref={ref}
-          onMouseDown={(e) =>
-            dispatch({ type: "mouse-down", x: e.clientX, y: e.clientY })
-          }
-          onMouseMove={(e) =>
-            dispatch({ type: "mouse-move", x: e.clientX, y: e.clientY })
-          }
-          onMouseUp={(e) =>
-            dispatch({ type: "mouse-up", x: e.clientX, y: e.clientY })
-          }
-        ></canvas>
-      </div>
+    <div className="canvas__container">
+      <canvas
+        ref={ref}
+        onMouseDown={onMouseDown}
+        onMouseMove={onMouseMove}
+        onMouseUp={onMouseUp}
+      ></canvas>
     </div>
   );
 }

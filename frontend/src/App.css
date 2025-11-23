@@ -20,18 +20,16 @@
   }
 }
 
-.canvas {
-  .button-bar {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 10px;
+.button-bar {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 10px;
 
-    button {
-      margin: 10px 10px;
-    }
+  button {
+    margin: 10px 10px;
+  }
 
-    .submit {
-      background-color: #ffe1c6;
-    }
+  .download {
+    background-color: #ffe1c6;
   }
 }

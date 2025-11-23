@@ -1,52 +1,10 @@
-import { useReducer, type RefObject } from "react";
-import { canvasOrNone } from "./canvasOrNone";
+import { type RefObject, useReducer } from "react";
+import { canvasCtxOrNone } from "./canvasCtxOrNone";
 import { INITIAL_W_PX, INITIAL_H_PX } from "./constant";
-
-type BoxId = `${number}-${number}`;
-
-export type Box = {
-  x: number;
-  y: number;
-  scale: number;
-};
-type ViewData = {
-  visible: BoxId[];
-  1: BoxId[];
-  2: BoxId[];
-  3: BoxId[];
-  4: BoxId[];
-  boxes: Record<BoxId, Box>;
-};
-
-export type ViewState = ViewData &
-  (
-    | {
-        mode: "drag";
-        id: BoxId;
-        startingPosition: { x: number; y: number };
-      }
-    | {
-        mode: "resize";
-        id: BoxId;
-        startingPosition: { x: number; y: number };
-      }
-    | {
-        mode: "none";
-      }
-  );
-
-type ViewAction =
-  | {
-      type: "set-view";
-      view: 1 | 2 | 3 | 4;
-    }
-  | {
-      type: "mouse-down" | "mouse-move" | "mouse-up";
-      x: number;
-      y: number;
-    };
+import type { ViewState, ViewData } from "./ViewState";
 
 const INITIAL_BOXES: ViewData = {
+  view: 1,
   visible: ["1-1"],
   1: ["1-1"],
   2: ["2-1", "2-2"],
@@ -114,15 +72,36 @@ function isOutsideBoundingBox(
   return x < box.x || x > box.x + box.w || y < box.y || y > box.y + box.h;
 }
 
+function getMouseRelativePosition(
+  canvas: HTMLCanvasElement,
+  x: number,
+  y: number,
+): { x: number; y: number } {
+  const canvasBoundingBox = canvas.getBoundingClientRect();
+
+  return { x: x - canvasBoundingBox.left, y: y - canvasBoundingBox.top };
+}
+
+type ViewAction =
+  | {
+      type: "set-view";
+      view: 1 | 2 | 3 | 4;
+    }
+  | {
+      type: "mouse-down" | "mouse-move" | "mouse-up";
+      x: number;
+      y: number;
+    };
+
 export function useViewStateReducer(ref: RefObject<HTMLCanvasElement | null>) {
   return useReducer<ViewState, [ViewAction]>(
     (state, action) => {
       switch (action.type) {
         case "set-view": {
-          return { ...state, visible: state[action.view] };
+          return { ...state, visible: state[action.view], view: action.view };
         }
         case "mouse-down": {
-          const canvas = canvasOrNone(ref)?.canvas;
+          const canvas = canvasCtxOrNone(ref)?.canvas;
 
           if (!canvas) {
             return state;
@@ -177,7 +156,7 @@ export function useViewStateReducer(ref: RefObject<HTMLCanvasElement | null>) {
           if (state.mode === "none") {
             return state;
           }
-          const canvas = canvasOrNone(ref)?.canvas;
+          const canvas = canvasCtxOrNone(ref)?.canvas;
 
           if (!canvas) {
             return state;
@@ -198,10 +177,8 @@ export function useViewStateReducer(ref: RefObject<HTMLCanvasElement | null>) {
               // minimization function where we take the derivative of
               // the distance equation for two points, and set the derivative
               // equal to zero.
-
               // Solving for x:
               // x = (x0 + m * y0) / (1 + m * m)
-
               // This is not quite right - there's a weird jump when we start the mousemove
               // event...?
               const slope = INITIAL_H_PX / INITIAL_W_PX;
@@ -242,6 +219,7 @@ export function useViewStateReducer(ref: RefObject<HTMLCanvasElement | null>) {
         case "mouse-up": {
           return {
             mode: "none",
+            view: state.view,
             visible: state.visible,
             boxes: state.boxes,
             1: state[1],
@@ -260,14 +238,4 @@ export function useViewStateReducer(ref: RefObject<HTMLCanvasElement | null>) {
       ...INITIAL_BOXES,
     },
   );
-}
-
-function getMouseRelativePosition(
-  canvas: HTMLCanvasElement,
-  x: number,
-  y: number,
-): { x: number; y: number } {
-  const canvasBoundingBox = canvas.getBoundingClientRect();
-
-  return { x: x - canvasBoundingBox.left, y: y - canvasBoundingBox.top };
 }
