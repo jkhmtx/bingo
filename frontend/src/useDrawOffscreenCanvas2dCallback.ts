@@ -1,6 +1,6 @@
-import { useCallback } from "react";
-import type { Box } from "./ViewState";
 import { INITIAL_W_PX, INITIAL_H_PX } from "./constant";
+import type { Box } from "./useViewStateReducer";
+import { useCallback } from "react";
 
 type BingoCard = Box & {
   cells: string[][];

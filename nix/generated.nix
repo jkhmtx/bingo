@@ -3,6 +3,7 @@
   frontend.build = ../frontend/scripts/bin/build/main.nix;
   frontend.dev = ../frontend/scripts/bin/dev/main.nix;
   frontend.preview = ../frontend/scripts/bin/preview/main.nix;
+  frontend.sort-imports = ../frontend/scripts/bin/sort-imports/main.nix;
   frontend.yarn = ../frontend/scripts/bin/yarn/main.nix;
   root.check = ../scripts/bin/check/main.nix;
   root.fix = ../scripts/bin/fix/main.nix;

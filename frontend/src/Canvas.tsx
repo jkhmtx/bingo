@@ -1,8 +1,8 @@
-import { useEffect, useLayoutEffect, useMemo, type RefObject } from "react";
-import type { Box } from "./ViewState";
-import { useDrawOffscreenCanvas2dCallback } from "./useDrawOffscreenCanvas2dCallback";
 import { createBingoCellsMatrix } from "./createBingoCellsMatrix";
 import { INITIAL_W_PX, INITIAL_H_PX } from "./constant";
+import type { Box } from "./useViewStateReducer";
+import { useDrawOffscreenCanvas2dCallback } from "./useDrawOffscreenCanvas2dCallback";
+import { useEffect, useMemo, type RefObject } from "react";
 
 const STATIC_BINGO_CELLS_MATRIX = createBingoCellsMatrix();
 

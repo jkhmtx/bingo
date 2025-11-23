@@ -1,6 +1,40 @@
-import { type RefObject, useReducer } from "react";
 import { INITIAL_W_PX, INITIAL_H_PX } from "./constant";
-import type { ViewState, ViewData } from "./ViewState";
+import { type RefObject, useReducer } from "react";
+
+type BoxId = `${number}-${number}`;
+
+export type Box = {
+  x: number;
+  y: number;
+  scale: number;
+};
+
+export type ViewData = {
+  view: 1 | 2 | 3 | 4;
+  visible: BoxId[];
+  1: BoxId[];
+  2: BoxId[];
+  3: BoxId[];
+  4: BoxId[];
+  boxes: Record<BoxId, Box>;
+};
+
+export type ViewState = ViewData &
+  (
+    | {
+        mode: "drag";
+        id: BoxId;
+        startingPosition: { x: number; y: number };
+      }
+    | {
+        mode: "resize";
+        id: BoxId;
+        startingPosition: { x: number; y: number };
+      }
+    | {
+        mode: "none";
+      }
+  );
 
 const INITIAL_BOXES: ViewData = {
   view: 1,

@@ -1,13 +1,13 @@
 import "./App.css";
 import { Buttons } from "./Buttons";
 import { Canvas } from "./Canvas";
-import { ImageUpload } from "./ImageUpload";
-import { useMemo, useRef, useState } from "react";
-import { useViewStateReducer } from "./useViewStateReducer";
 import { createBingoCellsMatrix } from "./createBingoCellsMatrix";
-import { useOffscreenCanvasMemo } from "./useOffscreenCanvasMemo";
-import { useImageMemo } from "./UseImageMemoProps";
+import { ImageUpload } from "./ImageUpload";
 import { useDrawOffscreenCanvas2dCallback } from "./useDrawOffscreenCanvas2dCallback";
+import { useImageMemo } from "./UseImageMemoProps";
+import { useMemo, useRef, useState } from "react";
+import { useOffscreenCanvasMemo } from "./useOffscreenCanvasMemo";
+import { useViewStateReducer } from "./useViewStateReducer";
 
 const IDENT = {
   1: "single",
