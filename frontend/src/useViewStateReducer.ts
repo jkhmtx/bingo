@@ -1,5 +1,4 @@
 import { type RefObject, useReducer } from "react";
-import { canvasCtxOrNone } from "./canvasCtxOrNone";
 import { INITIAL_W_PX, INITIAL_H_PX } from "./constant";
 import type { ViewState, ViewData } from "./ViewState";
 
@@ -101,7 +100,7 @@ export function useViewStateReducer(ref: RefObject<HTMLCanvasElement | null>) {
           return { ...state, visible: state[action.view], view: action.view };
         }
         case "mouse-down": {
-          const canvas = canvasCtxOrNone(ref)?.canvas;
+          const canvas = ref.current?.getContext("2d")?.canvas;
 
           if (!canvas) {
             return state;
@@ -156,7 +155,7 @@ export function useViewStateReducer(ref: RefObject<HTMLCanvasElement | null>) {
           if (state.mode === "none") {
             return state;
           }
-          const canvas = canvasCtxOrNone(ref)?.canvas;
+          const canvas = ref.current?.getContext("2d")?.canvas;
 
           if (!canvas) {
             return state;

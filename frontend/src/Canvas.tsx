@@ -1,15 +1,17 @@
-import { useDrawBackgroundImageCallback } from "./useDrawBackgroundImageCallback";
-import { useDrawResizableBoxesCallback } from "./useDrawResizableBoxesCallback";
-import { useEffect, type RefObject } from "react";
-import { useGettingImageMemo } from "./useGettingImageMemo";
-import { useRedrawCallback } from "./useRedrawCallback";
+import { useEffect, useLayoutEffect, useMemo, type RefObject } from "react";
 import type { Box } from "./ViewState";
+import { useDrawOffscreenCanvas2dCallback } from "./useDrawOffscreenCanvas2dCallback";
+import { createBingoCellsMatrix } from "./createBingoCellsMatrix";
+import { INITIAL_W_PX, INITIAL_H_PX } from "./constant";
+
+const STATIC_BINGO_CELLS_MATRIX = createBingoCellsMatrix();
 
 type OnMouseEvent = (e: { clientX: number; clientY: number }) => void;
 
 type CanvasProps = {
   boxes: Box[];
-  imageUri: string;
+  image: HTMLImageElement;
+  offscreenCanvas: OffscreenCanvas | undefined;
   onMouseDown: OnMouseEvent;
   onMouseMove: OnMouseEvent;
   onMouseUp: OnMouseEvent;
@@ -18,29 +20,48 @@ type CanvasProps = {
 
 export function Canvas({
   boxes,
-  imageUri,
+  image,
+  offscreenCanvas,
   onMouseDown,
   onMouseMove,
   onMouseUp,
   ref,
 }: CanvasProps) {
-  const redraw = useRedrawCallback(ref);
-  const renderImage = useDrawBackgroundImageCallback(
-    ref,
-    { gettingImage: useGettingImageMemo(imageUri) },
-    [imageUri],
+  const cards = useMemo(
+    () => boxes.map((box) => ({ ...box, cells: STATIC_BINGO_CELLS_MATRIX })),
+    [boxes],
   );
-  const drawResizableBoxes = useDrawResizableBoxesCallback(ref, { boxes }, [
-    boxes,
-  ]);
+
+  const drawOffscreenCanvas = useDrawOffscreenCanvas2dCallback({
+    canvas: offscreenCanvas,
+    image,
+  });
 
   useEffect(() => {
-    (async () => {
-      for (const cb of [redraw, renderImage, drawResizableBoxes]) {
-        await cb();
-      }
-    })();
-  }, [redraw, renderImage, drawResizableBoxes]);
+    const ctx = drawOffscreenCanvas(cards);
+
+    const visibleCtx = ref.current?.getContext("2d");
+    if (!ctx || !visibleCtx) {
+      return;
+    }
+
+    for (const card of cards) {
+      const w = card.scale * INITIAL_W_PX;
+      const h = card.scale * INITIAL_H_PX;
+
+      ctx.fillStyle = "yellow";
+      ctx.beginPath();
+      ctx.moveTo(card.x + w, card.y + h);
+      ctx.lineTo(card.x + w * 0.8, card.y + h);
+      ctx.lineTo(card.x + w, card.y + h * 0.8);
+      ctx.fill();
+    }
+
+    visibleCtx.canvas.width = ctx.canvas.width;
+    visibleCtx.canvas.height = ctx.canvas.height;
+
+    visibleCtx.drawImage(ctx.canvas, 0, 0);
+  }, [cards, drawOffscreenCanvas]);
 
   return (
     <div className="canvas__container">

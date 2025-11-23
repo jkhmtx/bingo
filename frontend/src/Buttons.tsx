@@ -27,7 +27,7 @@ export function Buttons({
         <input
           type="number"
           min={1}
-          max={5}
+          max={500}
           value={quantity}
           onChange={(e) => setQuantity(e.target.valueAsNumber)}
         ></input>
