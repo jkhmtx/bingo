@@ -23,13 +23,28 @@
 .button-bar {
   display: flex;
   justify-content: center;
-  margin-bottom: 10px;
+  align-items: center;
+  margin: 10px 0;
 
   button {
     margin: 10px 10px;
   }
 
   .download {
-    background-color: #ffe1c6;
+    border-left: 1px solid #ffffbb55;
+    padding: 10px;
+
+    label {
+      display: flex;
+      flex-direction: column;
+      input[type="number"] {
+        appearance: textfield;
+        text-align: center;
+      }
+    }
+
+    button {
+      background-color: #ffe1c6;
+    }
   }
 }

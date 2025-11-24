@@ -13,28 +13,32 @@ export function Buttons({
 }: ButtonsProps) {
   return (
     <div className="button-bar">
-      {([1, 2, 3, 4] as const).map((view) => (
-        <button
-          key={view}
-          type="button"
-          onClick={() => onViewButtonClick(view)}
-        >
-          {view}
+      <div>
+        {([1, 2, 3, 4] as const).map((view) => (
+          <button
+            key={view}
+            type="button"
+            onClick={() => onViewButtonClick(view)}
+          >
+            {view}
+          </button>
+        ))}
+      </div>
+      <div className="download">
+        <label htmlFor="quantity">
+          How many?
+          <input
+            type="number"
+            min={1}
+            max={500}
+            value={quantity}
+            onChange={(e) => setQuantity(e.target.valueAsNumber)}
+          ></input>
+        </label>
+        <button type="button" onClick={onDownloadClick}>
+          Download
         </button>
-      ))}
-      <label htmlFor="quantity">
-        How many?
-        <input
-          type="number"
-          min={1}
-          max={500}
-          value={quantity}
-          onChange={(e) => setQuantity(e.target.valueAsNumber)}
-        ></input>
-      </label>
-      <button className="download" type="button" onClick={onDownloadClick}>
-        Download
-      </button>
+      </div>
     </div>
   );
 }

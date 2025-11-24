@@ -68,8 +68,23 @@ export function Canvas({
       <canvas
         ref={ref}
         onMouseDown={onMouseDown}
+        onTouchStart={(e) => {
+          if (e.touches.length > 1) {
+            return;
+          }
+
+          onMouseDown(e.touches.item(0));
+        }}
         onMouseMove={onMouseMove}
+        onTouchMove={(e) => {
+          if (e.touches.length > 1) {
+            return;
+          }
+
+          onMouseMove(e.touches.item(0));
+        }}
         onMouseUp={onMouseUp}
+        onTouchEnd={(e) => onMouseUp(e.touches.item(0))}
       ></canvas>
     </div>
   );
