@@ -7,7 +7,7 @@ export SHELL_HOOK_TEMPLATE="${SHELL_HOOK_TEMPLATE}"
 
 mkdir -p .direnv/shell/bin
 
-nix build '#devShell' --out-link .direnv/shell/result
+nix build '#shell' --out-link .direnv/shell/result
 
 echo .direnv/shell/result/bin
 
