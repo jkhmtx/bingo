@@ -32,9 +32,7 @@ export function useDrawOffscreenCanvas2dCallback({
 
       ctx.drawImage(image, 0, 0);
 
-      let i = 0;
       for (const card of cards) {
-        console.log({ card, i: i++ });
         const w = card.scale * INITIAL_W_PX;
         const h = card.scale * INITIAL_H_PX;
 

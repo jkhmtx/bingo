@@ -8,6 +8,10 @@ import { useImageMemo } from "./UseImageMemoProps";
 import { useMemo, useRef, useState } from "react";
 import { useOffscreenCanvasMemo } from "./useOffscreenCanvasMemo";
 import { useViewStateReducer } from "./useViewStateReducer";
+import { Downloadable } from "./Downloadable";
+import { sleep } from "./sleep";
+
+const BATCH_SIZE = 5;
 
 const IDENT = {
   1: "single",
@@ -36,6 +40,24 @@ function App() {
     image,
   });
 
+  const download = async (name: string) => {
+    const ctx = drawDownloadableCanvas(
+      boxes.map((box) => ({
+        ...box,
+        cells: createBingoCellsMatrix(),
+      })),
+    );
+
+    if (!ctx) {
+      throw new Error("this should never happen");
+    }
+
+    const blob = await ctx.canvas.convertToBlob();
+    using downloadable = new Downloadable(blob, name);
+
+    downloadable.start();
+  };
+
   const [quantity, setQuantity] = useState(1);
 
   return (
@@ -46,31 +68,22 @@ function App() {
           <Buttons
             onDownloadClick={async () => {
               const ident = IDENT[state.view];
+              const batches = Math.floor(quantity / BATCH_SIZE);
 
-              for (let i = 0; i < quantity; i++) {
-                const ctx = drawDownloadableCanvas(
-                  boxes.map((box) => ({
-                    ...box,
-                    cells: createBingoCellsMatrix(),
-                  })),
-                );
-
-                if (!ctx) {
-                  throw new Error("this should never happen");
+              for (let i = 0; i < batches; i++) {
+                for (let j = 0; j < BATCH_SIZE; j++) {
+                  const n = i * BATCH_SIZE + j;
+                  await download(`bingo-${ident}-${n}.png`);
                 }
 
-                const blob = await ctx.canvas.convertToBlob();
-                const dataURL = URL.createObjectURL(blob);
+                await sleep(1_000);
+              }
 
-                // Create a link to download the image
-                const link = document.createElement("a");
-                link.href = dataURL;
-                link.download = `bingo-${ident}-${i}.png`;
+              const remaining = quantity % BATCH_SIZE;
 
-                // Programmatically click the link to trigger download
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
+              for (let i = 0; i < remaining; i++) {
+                const n = batches * BATCH_SIZE + i;
+                await download(`bingo-${ident}-${n}.png`);
               }
             }}
             onViewButtonClick={(view) => dispatch({ type: "set-view", view })}
