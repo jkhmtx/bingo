@@ -1,10 +1,12 @@
 {pkgs, ...}:
 pkgs.writeShellApplication {
-  name = "frontend.sort-imports";
+  name = "direnv.lib.build-and-symlink-derivations.inner";
+
   runtimeInputs = [
+    pkgs.coreutils
+    pkgs.findutils
     pkgs.git
-    pkgs.gnused
-    pkgs.moreutils
   ];
+
   text = builtins.readFile ./run.sh;
 }

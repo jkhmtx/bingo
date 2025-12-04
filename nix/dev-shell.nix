@@ -4,5 +4,6 @@ pkgs.symlinkJoin {
   paths = [
     # binary pkgs for general usage
     pkgs.nodejs
+    pkgs.biome
   ];
 }

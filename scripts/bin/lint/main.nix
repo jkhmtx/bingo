@@ -8,6 +8,7 @@ pkgs.writeShellApplication {
 
   runtimeInputs = [
     projectNamespace.root.lint-github-actions
+    projectNamespace.root.lint-js
     projectNamespace.root.lint-shell
   ];
 

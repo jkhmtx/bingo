@@ -1,7 +1,7 @@
 projectInputs: let
   inherit (projectInputs) pkgs;
   inherit (pkgs.lib) isAttrs;
-  inherit (pkgs.lib.attrsets) filterAttrs mapAttrs;
+  inherit (pkgs.lib.attrsets) mapAttrs;
   importAttrs = mapAttrs (_: value:
     if isAttrs value
     then importAttrs value

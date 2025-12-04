@@ -24,6 +24,7 @@
           inherit package;
           inherit pkgs;
           projectNamespace = import ./nix/project.nix projectInputs;
+          infallible = {with-tee = import ./scripts/util/with-tee/main.nix {inherit pkgs;};};
         };
 
         shell = import ./nix/dev-shell.nix projectInputs;
