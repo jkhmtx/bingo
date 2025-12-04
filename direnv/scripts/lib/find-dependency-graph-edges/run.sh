@@ -9,7 +9,7 @@ files=("$(realpath ./flake.nix)")
 declare -A scanned
 declare -A attrs
 
-raw_attrs="$("${FIND_GENERATED_NIX_RAW_ATTRSET}")"
+raw_attrs="$("${FIND_GENERATED_NIX_RAW_ATTRSET}" "${@}")"
 
 while read -r attrname path; do
 	attrs["${attrname}"]="${path}"

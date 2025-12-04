@@ -9,5 +9,5 @@ function indent() {
 echo
 echo "The following commands are available in your shell:"
 echo
-"${FIND_BINS}" | indent
+"${FIND_BINS}" ':*main.nix' | indent
 echo

@@ -1,6 +1,9 @@
 # shellcheck shell=bash
 
-mapfile -t paths < <(git ls-files ':*main.nix')
+mapfile -t paths < <(
+	git ls-files --others --exclude-standard -- "${@}" &&
+		git ls-files -- "${@}"
+)
 
 for path in "${paths[@]}"; do
 	# Start: ./path/to/scripts/bin/name/main.nix

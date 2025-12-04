@@ -35,7 +35,7 @@ mapfile -t files < <(find "${GRAPH_DIR}" -type f)
 
 declare -A nodes
 
-raw_attrs="$("${FIND_GENERATED_NIX_RAW_ATTRSET}")"
+raw_attrs="$("${FIND_GENERATED_NIX_RAW_ATTRSET}" "${@}")"
 
 while read -r attrname path; do
 	nodes["${path}"]="${attrname}"

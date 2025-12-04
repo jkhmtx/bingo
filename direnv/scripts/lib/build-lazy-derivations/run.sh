@@ -14,7 +14,7 @@ root="$(git rev-parse --show-toplevel)"
 rm -rf "${bin_dir}" >/dev/null 2>&1 || true
 mkdir -p "${bin_dir}"
 
-mapfile -t derivations < <(PREFIX="${PREFIX}" "${FIND_BINS}")
+mapfile -t derivations < <(PREFIX="${PREFIX}" "${FIND_BINS}" ':*main.nix')
 for derivation in "${derivations[@]}"; do
 	cache="${CACHE_DIR}/${derivation}"
 	path="${bin_dir}"/"${derivation}"
