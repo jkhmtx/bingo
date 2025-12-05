@@ -1,15 +1,15 @@
 {
-  pkgs,
+  nixpkgs,
   infallible,
   ...
 }:
 infallible.with-tee {
-  name = "direnv.lib.find-generated-nix-raw-attrset";
-  drv = pkgs.writeShellApplication {
-    name = "direnv.lib.find-generated-nix-raw-attrset.inner";
+  name = "root.lib.find-generated-nix-raw-attrset";
+  drv = nixpkgs.writeShellApplication {
+    name = "root.lib.find-generated-nix-raw-attrset.inner";
 
     runtimeInputs = [
-      pkgs.git
+      nixpkgs.git
     ];
 
     text = builtins.readFile ./run.sh;

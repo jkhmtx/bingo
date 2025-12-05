@@ -1,23 +1,23 @@
 {
-  pkgs,
-  projectNamespace,
+  nixpkgs,
+  _,
   ...
 }:
-pkgs.writeShellApplication {
-  name = "direnv.handle-stale-dependency-graph-nodes";
+nixpkgs.writeShellApplication {
+  name = "root.handle-stale-dependency-graph-nodes";
   runtimeInputs = [
-    pkgs.coreutils
-    pkgs.gnugrep
-    projectNamespace.direnv.lib.build-and-symlink-derivations
-    projectNamespace.direnv.lib.find-dependency-graph-edges
-    projectNamespace.direnv.lib.find-generated-nix-raw-attrset
-    projectNamespace.direnv.lib.mtime-database
+    nixpkgs.coreutils
+    nixpkgs.gnugrep
+    _.root.lib.build-and-symlink-derivations
+    _.root.lib.find-dependency-graph-edges
+    _.root.lib.find-generated-nix-raw-attrset
+    _.root.lib.mtime-database
   ];
   runtimeEnv = {
-    BUILD_AND_SYMLINK = projectNamespace.direnv.lib.build-and-symlink-derivations.name;
-    FIND_DEPENDENCY_GRAPH_EDGES = projectNamespace.direnv.lib.find-dependency-graph-edges.name;
-    FIND_GENERATED_NIX_RAW_ATTRSET = projectNamespace.direnv.lib.find-generated-nix-raw-attrset.name;
-    MTIME_DATABASE = projectNamespace.direnv.lib.mtime-database.name;
+    BUILD_AND_SYMLINK = _.root.lib.build-and-symlink-derivations.name;
+    FIND_DEPENDENCY_GRAPH_EDGES = _.root.lib.find-dependency-graph-edges.name;
+    FIND_GENERATED_NIX_RAW_ATTRSET = _.root.lib.find-generated-nix-raw-attrset.name;
+    MTIME_DATABASE = _.root.lib.mtime-database.name;
   };
   text = builtins.readFile ./run.sh;
 }

@@ -1,9 +1,11 @@
 # shellcheck shell=bash
 
 export CACHE_DIR="${CACHE_DIR}"
+export ENTRYPOINT="${ENTRYPOINT}"
 export GENERATED_NIX="${GENERATED_NIX}"
 export LST_DIR="${LST_DIR}"
 export PREFIX="${PREFIX}"
+export ROOT="${ROOT}"
 export STATE_DIR="${STATE_DIR}"
 export TEE_FILE_PREFIX="${TEE_FILE_PREFIX}"
 
@@ -43,7 +45,9 @@ rm -rf "${PARENTS_BY_CHILD_PATH_GRAPH_DIR}" >/dev/null 2>&1 || true
 
 DEPENDENCY_GRAPH_EDGES_LST="${LST_DIR}"/dependency-graph-edges.lst
 
-TEE_FILE_PREFIX="${TEE_FILE_PREFIX}" \
+ENTRYPOINT="${ENTRYPOINT}" \
+	ROOT="${ROOT}" \
+	TEE_FILE_PREFIX="${TEE_FILE_PREFIX}" \
 	"${FIND_DEPENDENCY_GRAPH_EDGES}" "${@}" \
 	>"${DEPENDENCY_GRAPH_EDGES_LST}"
 

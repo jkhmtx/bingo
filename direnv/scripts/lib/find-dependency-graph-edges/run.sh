@@ -1,8 +1,8 @@
 # shellcheck shell=bash
 
+export ENTRYPOINT="${ENTRYPOINT}"
 export FIND_GENERATED_NIX_RAW_ATTRSET="${FIND_GENERATED_NIX_RAW_ATTRSET}"
-
-root="$(git rev-parse --show-toplevel)"
+export ROOT="${ROOT}"
 
 declare -A scanned
 declare -A attrs_by_name
@@ -18,22 +18,21 @@ done <<<"${raw_attrs}"
 # 	attrs_by_path["${path}"]="${attrname}"
 # done <<<"${raw_attrs}"
 
+patterns_lst="$(mktemp)"
+
 for attrname in "${!attrs_by_name[@]}"; do
 	# shellcheck disable=2028
-	echo "\.${attrname}\b([^-]|$)"
-done >.direnv/patterns.lst
+	echo "_\.${attrname}\b([^-]|$)"
+done >"${patterns_lst}"
 
-files=("$(realpath ./flake.nix)")
+files=("$(realpath "${ENTRYPOINT}")")
 
 {
-	echo flake.nix flake.lock
-
-	# Find all paths referenced by flake.nix, or its dependents.
+	# Find all paths referenced by "${ENTRYPOINT}", and its dependents.
 	while test "${#files[@]}" -gt 0; do
 		for file in "${files[@]}"; do
-			file="${file##"${root}/"}"
+			file="${file##"${ROOT}/"}"
 			if ! test -n "${scanned["${file}"]:-}" && test "${file}" != "${file%.nix}"; then
-				echo "${file}" flake.lock
 				# TODO: Add interpolated paths detection so that the if block internal is reachable
 				if false; then
 					{
@@ -59,7 +58,7 @@ files=("$(realpath ./flake.nix)")
 					match="${match/ /}"
 					match="${match/;/}"
 					match="$(realpath "${match}")"
-					match="${match##"${root}/"}"
+					match="${match##"${ROOT}/"}"
 
 					echo "${file} ${match}"
 
@@ -67,7 +66,16 @@ files=("$(realpath ./flake.nix)")
 				done
 				popd >/dev/null 2>&1 || exit 1
 
-				mapfile -t drv_matches < <(grep --extended-regexp --only-matching --file .direnv/patterns.lst "${file}" | sed 's/\.\(.*\w\).*/\1/' || true)
+				drv_matches_lst="$(mktemp)"
+				grep \
+					--extended-regexp \
+					--only-matching \
+					--file "${patterns_lst}" \
+					"${file}" |
+					sed 's/_\.\(.*\w\).*/\1/' >"${drv_matches_lst}" || true
+
+				mapfile -t drv_matches <"${drv_matches_lst}"
+				rm "${drv_matches_lst}"
 
 				for attrname in "${drv_matches[@]}"; do
 					echo "${file}" "${attrs_by_name["${attrname}"]}"

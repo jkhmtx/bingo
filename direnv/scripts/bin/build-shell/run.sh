@@ -1,31 +1,46 @@
 # shellcheck shell=bash
 
-export SHELL_DIR="${SHELL_DIR}"
-result="${SHELL_DIR}"/result
-
-nix build '#shell' --out-link "${result}"
-
+export BIN_DIR="${BIN_DIR}"
+export CACHE_DIR=${CACHE_DIR}
 export PREFIX="${PREFIX}"
-export FIND_BINS="${FIND_BINS}"
+export ROOT="${ROOT}"
 
 export BUILD_AND_SYMLINK="${BUILD_AND_SYMLINK}"
-export CACHE_DIR=${CACHE_DIR}
-export SHELL_DIR="${SHELL_DIR}"
+export FIND_BINS="${FIND_BINS}"
 
-bin_dir="${SHELL_DIR}"/bin
+if test -s default.nix || test -n "${INSTALLABLES:-}"; then
+  out_paths="$(mktemp)"
 
-root="$(git rev-parse --show-toplevel)"
+  nix build \
+    --stdin \
+    --json \
+    --no-link \
+    <<<"${INSTALLABLES}" |
+    jq --raw-output '
+      .[].outputs 
+      | if .out then 
+          "\(.out)/bin" 
+        elif .bin then 
+          .bin
+        else 
+          error("Output does not have a valid bin path")
+        end' \
+      >"${out_paths}"
 
-rm -rf "${bin_dir}" >/dev/null 2>&1 || true
-mkdir -p "${bin_dir}"
+  mapfile -t paths <"${out_paths}"
+  rm "${out_paths}"
+fi
+
+rm -rf "${BIN_DIR}" >/dev/null 2>&1 || true
+mkdir -p "${BIN_DIR}"
 
 mapfile -t derivations < <(PREFIX="${PREFIX}" "${FIND_BINS}" "${@}")
 for derivation in "${derivations[@]}"; do
   cache="${CACHE_DIR}/${derivation}"
-  path="${bin_dir}"/"${derivation}"
+  path="${BIN_DIR}"/"${derivation}"
 
   cat <<EOF >"${path}"
-cd ${root} || exit 1
+cd ${ROOT} || exit 1
 
 if ! bash -n ${cache} >/dev/null >&2; then
 	echo "${derivation}" | CACHE_DIR=${CACHE_DIR} ${BUILD_AND_SYMLINK}
@@ -38,9 +53,9 @@ EOF
 done
 
 # If sourced by PATH_add in order,
-# any derivation in a symlinkJoin, built via '#shell',
+# any derivation in a symlinkJoin, built via '${INSTALLABLES}',
 # will be in preferential order in PATH, and shadow the cache-aside
 # implementation. This means that opting out of caching is possible
 # on a per-exe basis.
-echo "${bin_dir}"
-echo "${result}"/bin
+echo "${BIN_DIR}"
+printf '%s/bin\n' "${paths[@]}"

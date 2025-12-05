@@ -1,11 +1,11 @@
-{pkgs, ...}:
-pkgs.writeShellApplication {
-  name = "direnv.lib.build-and-symlink-derivations.inner";
+{nixpkgs, ...}:
+nixpkgs.writeShellApplication {
+  name = "root.lib.build-and-symlink-derivations.inner";
 
   runtimeInputs = [
-    pkgs.coreutils
-    pkgs.findutils
-    pkgs.git
+    nixpkgs.coreutils
+    nixpkgs.findutils
+    nixpkgs.git
   ];
 
   text = builtins.readFile ./run.sh;

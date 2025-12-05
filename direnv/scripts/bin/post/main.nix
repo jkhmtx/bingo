@@ -1,19 +1,19 @@
 {
-  pkgs,
-  projectNamespace,
+  nixpkgs,
+  _,
   ...
 }:
-pkgs.writeShellApplication {
-  name = "direnv.post";
+nixpkgs.writeShellApplication {
+  name = "root.post";
   runtimeInputs = [
-    pkgs.coreutils
-    pkgs.findutils
-    pkgs.gnused
-    projectNamespace.direnv.lib.find-bins
+    nixpkgs.coreutils
+    nixpkgs.findutils
+    nixpkgs.gnused
+    _.root.lib.find-bins
   ];
 
   runtimeEnv = {
-    FIND_BINS = projectNamespace.direnv.lib.find-bins.name;
+    FIND_BINS = _.root.lib.find-bins.name;
   };
   text = builtins.readFile ./run.sh;
 }

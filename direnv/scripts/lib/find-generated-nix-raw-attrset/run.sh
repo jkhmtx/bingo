@@ -2,7 +2,7 @@
 
 mapfile -t paths < <(
 	git ls-files --others --exclude-standard -- "${@}" &&
-		git ls-files -- "${@}"
+		git ls-files --cached -- "${@}"
 )
 
 for path in "${paths[@]}"; do

@@ -1,6 +1,7 @@
 {nixpkgs, ...}:
 nixpkgs.writeShellApplication {
-  name = "root.lib.mtime-database";
-
+  name = "root.generate";
+  runtimeInputs = [
+  ];
   text = builtins.readFile ./run.sh;
 }

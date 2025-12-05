@@ -1,22 +1,23 @@
 {
-  pkgs,
-  projectNamespace,
+  nixpkgs,
+  _,
   ...
 }:
-pkgs.writeShellApplication {
-  name = "direnv.build-shell";
+nixpkgs.writeShellApplication {
+  name = "build-shell";
   runtimeInputs = [
-    pkgs.coreutils
-    pkgs.gnused
-    projectNamespace.direnv.lib.build-and-symlink-derivations
-    projectNamespace.direnv.lib.find-bins
-    projectNamespace.direnv.lib.find-generated-nix-raw-attrset
+    nixpkgs.coreutils
+    nixpkgs.gnused
+    nixpkgs.jq
+    _.root.lib.build-and-symlink-derivations
+    _.root.lib.find-bins
+    _.root.lib.find-generated-nix-raw-attrset
   ];
 
   runtimeEnv = {
-    BUILD_AND_SYMLINK = projectNamespace.direnv.lib.build-and-symlink-derivations.name;
-    FIND_BINS = projectNamespace.direnv.lib.find-bins.name;
-    FIND_GENERATED_NIX_RAW_ATTRSET = projectNamespace.direnv.lib.find-generated-nix-raw-attrset.name;
+    BUILD_AND_SYMLINK = _.root.lib.build-and-symlink-derivations.name;
+    FIND_BINS = _.root.lib.find-bins.name;
+    FIND_GENERATED_NIX_RAW_ATTRSET = _.root.lib.find-generated-nix-raw-attrset.name;
   };
   text = builtins.readFile ./run.sh;
 }

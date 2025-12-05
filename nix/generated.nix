@@ -1,15 +1,5 @@
 {...}: {
   bingo.run = ../bingo/run/main.nix;
-  direnv.build-shell = ../direnv/scripts/bin/build-shell/main.nix;
-  direnv.find-watch-files = ../direnv/scripts/bin/find-watch-files/main.nix;
-  direnv.generate-nix-index = ../direnv/scripts/bin/generate-nix-index/main.nix;
-  direnv.handle-stale-dependency-graph-nodes = ../direnv/scripts/bin/handle-stale-dependency-graph-nodes/main.nix;
-  direnv.post = ../direnv/scripts/bin/post/main.nix;
-  direnv.lib.build-and-symlink-derivations = ../direnv/scripts/lib/build-and-symlink-derivations/main.nix;
-  direnv.lib.find-bins = ../direnv/scripts/lib/find-bins/main.nix;
-  direnv.lib.find-dependency-graph-edges = ../direnv/scripts/lib/find-dependency-graph-edges/main.nix;
-  direnv.lib.find-generated-nix-raw-attrset = ../direnv/scripts/lib/find-generated-nix-raw-attrset/main.nix;
-  direnv.lib.mtime-database = ../direnv/scripts/lib/mtime-database/main.nix;
   frontend.build = ../frontend/scripts/bin/build/main.nix;
   frontend.dev = ../frontend/scripts/bin/dev/main.nix;
   frontend.format = ../frontend/scripts/bin/format/main.nix;

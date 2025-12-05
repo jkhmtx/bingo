@@ -2,11 +2,10 @@
 
 export DESTINATION="${DESTINATION}"
 export FIND_GENERATED_NIX_RAW_ATTRSET="${FIND_GENERATED_NIX_RAW_ATTRSET}"
-
-root="$(git rev-parse --show-toplevel)"
+export ROOT="${ROOT}"
 
 dest="$(realpath "${DESTINATION}")"
-dest="${dest##"${root}/"}"
+dest="${dest##"${ROOT}/"}"
 num_slashes=$(echo "${dest}" | grep --only-matching '/' | wc -l)
 
 prefix=''

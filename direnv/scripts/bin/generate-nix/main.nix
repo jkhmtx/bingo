@@ -4,15 +4,15 @@
   ...
 }:
 nixpkgs.writeShellApplication {
-  name = "root.find-watch-files";
+  name = "root.generate-nix";
   runtimeInputs = [
     nixpkgs.coreutils
     nixpkgs.gnused
-    _.root.lib.find-dependency-graph-edges
+    _.root.lib.find-generated-nix-raw-attrset
   ];
 
   runtimeEnv = {
-    FIND_DEPENDENCY_GRAPH_EDGES = _.root.lib.find-dependency-graph-edges.name;
+    FIND_GENERATED_NIX_RAW_ATTRSET = _.root.lib.find-generated-nix-raw-attrset.name;
   };
   text = builtins.readFile ./run.sh;
 }

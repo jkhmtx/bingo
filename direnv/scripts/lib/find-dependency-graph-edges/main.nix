@@ -1,23 +1,23 @@
 {
-  pkgs,
-  projectNamespace,
+  nixpkgs,
+  _,
   ...
 }:
-projectNamespace.root.util.with-tee {
-  name = "direnv.lib.find-dependency-graph-edges";
-  drv = pkgs.writeShellApplication {
-    name = "direnv.lib.find-dependency-graph-edges.inner";
+_.root.util.with-tee {
+  name = "root.lib.find-dependency-graph-edges";
+  drv = nixpkgs.writeShellApplication {
+    name = "root.lib.find-dependency-graph-edges.inner";
 
     runtimeInputs = [
-      pkgs.coreutils
-      pkgs.git
-      pkgs.gnugrep
-      pkgs.gnused
-      projectNamespace.direnv.lib.find-generated-nix-raw-attrset
+      nixpkgs.coreutils
+      nixpkgs.git
+      nixpkgs.gnugrep
+      nixpkgs.gnused
+      _.root.lib.find-generated-nix-raw-attrset
     ];
 
     runtimeEnv = {
-      FIND_GENERATED_NIX_RAW_ATTRSET = projectNamespace.direnv.lib.find-generated-nix-raw-attrset.name;
+      FIND_GENERATED_NIX_RAW_ATTRSET = _.root.lib.find-generated-nix-raw-attrset.name;
     };
 
     text = builtins.readFile ./run.sh;

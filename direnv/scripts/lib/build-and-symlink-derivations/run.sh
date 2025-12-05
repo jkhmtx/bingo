@@ -1,8 +1,8 @@
 # shellcheck shell=bash
 
-root="$(git rev-parse --show-toplevel)"
+export ROOT="${ROOT}"
 
-cd "${root}" || exit 1
+cd "${ROOT}" || exit 1
 
 set -euo pipefail
 
