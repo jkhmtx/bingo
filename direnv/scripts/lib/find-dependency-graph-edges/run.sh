@@ -4,21 +4,26 @@ export FIND_GENERATED_NIX_RAW_ATTRSET="${FIND_GENERATED_NIX_RAW_ATTRSET}"
 
 root="$(git rev-parse --show-toplevel)"
 
-files=("$(realpath ./flake.nix)")
-
 declare -A scanned
-declare -A attrs
+declare -A attrs_by_name
+# declare -A attrs_by_path
 
 raw_attrs="$("${FIND_GENERATED_NIX_RAW_ATTRSET}" "${@}")"
 
 while read -r attrname path; do
-	attrs["${attrname}"]="${path}"
+	attrs_by_name["${attrname}"]="${path}"
 done <<<"${raw_attrs}"
 
-for attrname in "${!attrs[@]}"; do
+# while read -r attrname path; do
+# 	attrs_by_path["${path}"]="${attrname}"
+# done <<<"${raw_attrs}"
+
+for attrname in "${!attrs_by_name[@]}"; do
 	# shellcheck disable=2028
 	echo "\.${attrname}\b([^-]|$)"
 done >.direnv/patterns.lst
+
+files=("$(realpath ./flake.nix)")
 
 {
 	echo flake.nix flake.lock
@@ -38,6 +43,9 @@ done >.direnv/patterns.lst
 						echo "${file}"
 					} >&2
 				fi
+
+				# Check mtime of file
+				# If file is unchanged, just cat its saved list of parents (dependencies)
 
 				mapfile -t path_matches < <(grep \
 					--extended-regexp \
@@ -62,24 +70,8 @@ done >.direnv/patterns.lst
 				mapfile -t drv_matches < <(grep --extended-regexp --only-matching --file .direnv/patterns.lst "${file}" | sed 's/\.\(.*\w\).*/\1/' || true)
 
 				for attrname in "${drv_matches[@]}"; do
-					echo "${file}" "${attrs["${attrname}"]}"
+					echo "${file}" "${attrs_by_name["${attrname}"]}"
 				done
-
-				# while read -r attrname path; do
-				# 	if ! grep -q -E "(^|[^-])\b${attrname}\b([^-]|$)" "${file}"; then
-				# 		continue
-				# 	fi
-				#
-				# 	match="$(realpath "${path}")"
-				# 	match="${match##"${root}/"}"
-				# 	if test "${match}" = "${file}"; then
-				# 		continue
-				# 	fi
-				#
-				# 	echo "${file} ${match}"
-				#
-				# 	files+=("${match}")
-				# done <<<"${attrs[*]}"
 			fi
 
 			path_matches=()

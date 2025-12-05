@@ -4,7 +4,7 @@
   ...
 }:
 pkgs.writeShellApplication {
-  name = "direnv.lib.update-generated-nix";
+  name = "direnv.generate-nix-index";
   runtimeInputs = [
     pkgs.coreutils
     pkgs.gnused
