@@ -1,7 +1,5 @@
 root = true
 
-entrypoint = "flake.nix"
-
 derivations = [":*main.nix", ":!:direnv/*"]
 
 generated-out-path = "nix/generated.nix"
