@@ -3,13 +3,14 @@
 export CONFIG_TOML="${CONFIG_TOML}"
 export FIND_GENERATED_NIX_RAW_ATTRSET="${FIND_GENERATED_NIX_RAW_ATTRSET}"
 export GET_CONFIG_VALUE="${GET_CONFIG_VALUE}"
-export ROOT="${ROOT}"
+
+root="$(CONFIG_TOML="${CONFIG_TOML}" "${GET_CONFIG_VALUE}" path:config)"
 
 declare -A scanned
 declare -A attrs_by_name
 # declare -A attrs_by_path
 
-raw_attrs="$("${FIND_GENERATED_NIX_RAW_ATTRSET}" "${@}")"
+raw_attrs="$(CONFIG_TOML="${CONFIG_TOML}" "${FIND_GENERATED_NIX_RAW_ATTRSET}")"
 
 while read -r attrname path; do
 	attrs_by_name["${attrname}"]="${path}"
@@ -36,7 +37,7 @@ files=("$(realpath "${entrypoint}")")
 	# Find all paths referenced by entrypoint, and its dependents.
 	while test "${#files[@]}" -gt 0; do
 		for file in "${files[@]}"; do
-			file="${file##"${ROOT}/"}"
+			file="${file##"${root}/"}"
 			if ! test -n "${scanned["${file}"]:-}" && test "${file}" != "${file%.nix}"; then
 				# TODO: Add interpolated paths detection so that the if block internal is reachable
 				if false; then
@@ -63,7 +64,7 @@ files=("$(realpath "${entrypoint}")")
 					match="${match/ /}"
 					match="${match/;/}"
 					match="$(realpath "${match}")"
-					match="${match##"${ROOT}/"}"
+					match="${match##"${root}/"}"
 
 					echo "${file} ${match}"
 

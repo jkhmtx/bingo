@@ -9,6 +9,7 @@
   root.lib.find-bins = ../scripts/lib/find-bins/main.nix;
   root.lib.find-dependency-graph-edges = ../scripts/lib/find-dependency-graph-edges/main.nix;
   root.lib.find-generated-nix-raw-attrset = ../scripts/lib/find-generated-nix-raw-attrset/main.nix;
+  root.lib.find-stale-dependency-graph-nodes = ../scripts/lib/find-stale-dependency-graph-nodes/main.nix;
   root.lib.generate-ignore-patterns-file = ../scripts/lib/generate-ignore-patterns-file/main.nix;
   root.lib.get-config-value = ../scripts/lib/get-config-value/main.nix;
   root.lib.mtime-database = ../scripts/lib/mtime-database/main.nix;

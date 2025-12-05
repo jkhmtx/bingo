@@ -1,10 +1,11 @@
 # shellcheck shell=bash
 
-export ROOT="${ROOT}"
+export CONFIG_TOML="${CONFIG_TOML}"
+export GET_CONFIG_VALUE="${GET_CONFIG_VALUE}"
 
-cd "${ROOT}" || exit 1
+root="$(CONFIG_TOML="${CONFIG_TOML}" "${GET_CONFIG_VALUE}" path:config)"
 
-set -euo pipefail
+cd "${root}" || exit 1
 
 export CACHE_DIR="${CACHE_DIR}"
 

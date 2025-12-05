@@ -1,4 +1,8 @@
-{nixpkgs, ...}: {
+{
+  nixpkgs,
+  infallible,
+  ...
+}: {
   name,
   drv,
   teeFilePrefix ? null,
@@ -8,12 +12,14 @@ nixpkgs.writeShellApplication {
 
   runtimeInputs = [
     nixpkgs.coreutils
+    infallible.get-config-value
     drv
   ];
 
   runtimeEnv =
     {
       DRV_NAME = drv.name;
+      GET_CONFIG_VALUE = infallible.get-config-value.name;
     }
     // (
       if teeFilePrefix == null

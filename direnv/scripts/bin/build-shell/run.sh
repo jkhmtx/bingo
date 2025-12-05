@@ -1,21 +1,24 @@
 # shellcheck shell=bash
 
-export BIN_DIR="${BIN_DIR}"
-export CACHE_DIR=${CACHE_DIR}
-export PREFIX="${PREFIX}"
-export ROOT="${ROOT}"
+export CONFIG_TOML="${CONFIG_TOML}"
+export GET_CONFIG_VALUE="${GET_CONFIG_VALUE}"
 
 export BUILD_AND_SYMLINK="${BUILD_AND_SYMLINK}"
 export FIND_BINS="${FIND_BINS}"
 
-if test -s default.nix || test -n "${INSTALLABLES:-}"; then
+bin_dir="$(CONFIG_TOML="${CONFIG_TOML}" "${GET_CONFIG_VALUE}" path:bin)"
+cache_dir="$(CONFIG_TOML="${CONFIG_TOML}" "${GET_CONFIG_VALUE}" path:cache)"
+installables="$(CONFIG_TOML="${CONFIG_TOML}" "${GET_CONFIG_VALUE}" installables)"
+root="$(CONFIG_TOML="${CONFIG_TOML}" "${GET_CONFIG_VALUE}" path:config)"
+
+if test -s default.nix || test -n "${installables:-}"; then
   out_paths="$(mktemp)"
 
   nix build \
     --stdin \
     --json \
     --no-link \
-    <<<"${INSTALLABLES}" |
+    <<<"${installables}" |
     jq --raw-output '
       .[].outputs 
       | if .out then 
@@ -31,19 +34,19 @@ if test -s default.nix || test -n "${INSTALLABLES:-}"; then
   rm "${out_paths}"
 fi
 
-rm -rf "${BIN_DIR}" >/dev/null 2>&1 || true
-mkdir -p "${BIN_DIR}"
+rm -rf "${bin_dir}" >/dev/null 2>&1 || true
+mkdir -p "${bin_dir}"
 
-mapfile -t derivations < <(PREFIX="${PREFIX}" "${FIND_BINS}" "${@}")
+mapfile -t derivations < <(CONFIG_TOML="${CONFIG_TOML}" "${FIND_BINS}")
 for derivation in "${derivations[@]}"; do
-  cache="${CACHE_DIR}/${derivation}"
-  path="${BIN_DIR}"/"${derivation}"
+  cache="${cache_dir}/${derivation}"
+  path="${bin_dir}"/"${derivation}"
 
   cat <<EOF >"${path}"
-cd ${ROOT} || exit 1
+cd ${root} || exit 1
 
 if ! bash -n ${cache} >/dev/null >&2; then
-	echo "${derivation}" | CACHE_DIR=${CACHE_DIR} ${BUILD_AND_SYMLINK}
+	echo "${derivation}" | CACHE_DIR=${cache_dir} ${BUILD_AND_SYMLINK}
 fi
 
 ${cache} \${@}
@@ -57,5 +60,5 @@ done
 # will be in preferential order in PATH, and shadow the cache-aside
 # implementation. This means that opting out of caching is possible
 # on a per-exe basis.
-echo "${BIN_DIR}"
+echo "${bin_dir}"
 printf '%s/bin\n' "${paths[@]}"

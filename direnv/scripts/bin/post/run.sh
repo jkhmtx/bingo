@@ -1,5 +1,6 @@
 # shellcheck shell=bash
 
+export CONFIG_TOML="${CONFIG_TOML}"
 export FIND_BINS="${FIND_BINS}"
 
 function indent() {
@@ -9,5 +10,6 @@ function indent() {
 echo
 echo "The following commands are available in your shell:"
 echo
-"${FIND_BINS}" "${@}" | indent
+CONFIG_TOML="${CONFIG_TOML}" \
+  "${FIND_BINS}" | indent
 echo

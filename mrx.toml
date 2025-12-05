@@ -2,4 +2,6 @@ root = true
 
 derivations = [":*main.nix", ":!:direnv/*"]
 
+installables = ["#shell"]
+
 generated-out-path = "nix/generated.nix"

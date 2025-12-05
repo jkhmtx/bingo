@@ -1,8 +1,16 @@
 # shellcheck shell=bash
 
+export CONFIG_TOML="${CONFIG_TOML}"
 export DRV_NAME="${DRV_NAME}"
-export TEE_FILE_PREFIX="${TEE_FILE_PREFIX}"
+export GET_CONFIG_VALUE="${GET_CONFIG_VALUE}"
 
-mkdir -p "${TEE_FILE_PREFIX}"
+dir=
+if test -z "${TEE_FILE_PREFIX:-}"; then
+  dir="$(CONFIG_TOML="${CONFIG_TOML}" "${GET_CONFIG_VALUE}" path:tee)"
+else
+  dir="${TEE_FILE_PREFIX}"
+fi
 
-"${DRV_NAME}" "${@}" | tee "${TEE_FILE_PREFIX}/${DRV_NAME}"
+mkdir -p "${dir}"
+
+"${DRV_NAME}" "${@}" | tee "${dir}/${DRV_NAME}"

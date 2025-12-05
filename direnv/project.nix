@@ -7,15 +7,15 @@
 
   importAttrs = import ./nix/util/import-attrs.nix {
     inherit nixpkgs infallible;
-    _ = root;
+    _ = generated;
   };
 
   drvs = {
-    root = import ./nix/root.nix {};
+    generated = import ./nix/generated.nix {};
     infallible = import ./nix/infallible.nix {};
   };
 
-  root = importAttrs drvs.root;
+  generated = importAttrs drvs.generated;
   infallible = importAttrs drvs.infallible;
 in
   {
@@ -23,4 +23,4 @@ in
       inherit importAttrs;
     };
   }
-  // root // infallible
+  // generated // infallible

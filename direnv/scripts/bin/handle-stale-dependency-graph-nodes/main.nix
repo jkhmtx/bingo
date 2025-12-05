@@ -8,16 +8,14 @@ nixpkgs.writeShellApplication {
   runtimeInputs = [
     nixpkgs.coreutils
     nixpkgs.gnugrep
+    _.root.lib.find-stale-dependency-graph-nodes
     _.root.lib.build-and-symlink-derivations
-    _.root.lib.find-dependency-graph-edges
-    _.root.lib.find-generated-nix-raw-attrset
-    _.root.lib.mtime-database
+    _.root.lib.get-config-value
   ];
   runtimeEnv = {
+    FIND_STALE_DEPENDENCY_GRAPH_NODES = _.root.lib.find-stale-dependency-graph-nodes.name;
     BUILD_AND_SYMLINK = _.root.lib.build-and-symlink-derivations.name;
-    FIND_DEPENDENCY_GRAPH_EDGES = _.root.lib.find-dependency-graph-edges.name;
-    FIND_GENERATED_NIX_RAW_ATTRSET = _.root.lib.find-generated-nix-raw-attrset.name;
-    MTIME_DATABASE = _.root.lib.mtime-database.name;
+    GET_CONFIG_VALUE = _.root.lib.get-config-value.name;
   };
   text = builtins.readFile ./run.sh;
 }

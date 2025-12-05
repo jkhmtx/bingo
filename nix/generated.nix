@@ -19,5 +19,4 @@
   root.lint-shell = ../scripts/bin/lint-shell/main.nix;
   root.lint = ../scripts/bin/lint/main.nix;
   root.local-ci = ../scripts/bin/local-ci/main.nix;
-  root.util.with-tee = ../scripts/util/with-tee/main.nix;
 }

@@ -10,7 +10,12 @@ infallible.with-tee {
 
     runtimeInputs = [
       nixpkgs.git
+      infallible.get-config-value
     ];
+
+    runtimeEnv = {
+      GET_CONFIG_VALUE = infallible.get-config-value.name;
+    };
 
     text = builtins.readFile ./run.sh;
   };

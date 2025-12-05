@@ -3,67 +3,36 @@
 set -euo pipefail
 
 CONFIG_TOML=mrx.toml
-GENERATED_NIX=nix/root.nix
-PREFIX=__TOOL__
 
-STATE_DIR="${PREFIX}"/state
-LST_DIR="${STATE_DIR}"/lst
-TEE_FILE_PREFIX="${LST_DIR}"
+CONFIG_TOML="${CONFIG_TOML}" \
+  nix run --file package.nix 'generate-nix'
 
-CACHE_DIR="${STATE_DIR}"/cache
-BIN_DIR="${PREFIX}"/bin
+dev_shell_paths_lst="$(mktemp)"
+CONFIG_TOML="${CONFIG_TOML}" \
+  nix run --file package.nix 'build-shell' \
+  >"${dev_shell_paths_lst}"
 
-mkdir -p "${LST_DIR}"
-
-derivations=(':*main.nix')
-
-DESTINATION="${GENERATED_NIX}" \
-  ROOT="${PWD}" \
-  TEE_FILE_PREFIX="${LST_DIR}" \
-  nix run --file package.nix 'generate-nix' -- "${derivations[@]}"
-
-BIN_DIR="${BIN_DIR}" \
-  CACHE_DIR="${CACHE_DIR}" \
-  PREFIX="${PREFIX}" \
-  ROOT="${PWD}" \
-  TEE_FILE_PREFIX="${LST_DIR}" \
-  nix run --file package.nix 'build-shell' -- "${derivations[@]}" \
-  >"${LST_DIR}"/dev-shell-paths.lst
-
-mapfile -t path_add_paths <"${LST_DIR}"/dev-shell-paths.lst
-rm "${LST_DIR}"/dev-shell-paths.lst
+mapfile -t path_add_paths <"${dev_shell_paths_lst}"
+rm "${dev_shell_paths_lst}"
 
 if type PATH_add >/dev/null 2>&1; then
   PATH_add "${path_add_paths[@]}"
 fi
 
-IGNORE_PATTERNS_FILE="$(mktemp)"
-echo "${GENERATED_NIX}" >"${IGNORE_PATTERNS_FILE}"
-
+watch_files_lst="$(mktemp)"
 CONFIG_TOML="${CONFIG_TOML}" \
-  IGNORE_PATTERNS_FILE="${IGNORE_PATTERNS_FILE}" \
-  ROOT="${PWD}" \
-  TEE_FILE_PREFIX="${LST_DIR}" \
-  nix run --file package.nix 'find-watch-files' -- "${derivations[@]}" \
-  >"${STATE_DIR}"/watch_files.lst
+  nix run --file package.nix 'find-watch-files' \
+  >"${watch_files_lst}"
 
-mapfile -t watch_files <"${STATE_DIR}"/watch_files.lst
-rm "${STATE_DIR}"/watch_files.lst
+mapfile -t watch_files <"${watch_files_lst}"
+rm "${watch_files_lst}"
 
 if type watch_file >/dev/null 2>&1; then
   watch_file "${watch_files[@]}"
 fi
 
-CACHE_DIR="${CACHE_DIR}" \
-  CONFIG_TOML="${CONFIG_TOML}" \
-  GENERATED_NIX="${GENERATED_NIX}" \
-  LST_DIR="${LST_DIR}" \
-  PREFIX="${PREFIX}" \
-  ROOT="${PWD}" \
-  STATE_DIR="${STATE_DIR}" \
-  TEE_FILE_PREFIX="${TEE_FILE_PREFIX}" \
-  nix run --file package.nix 'handle-stale-dependency-graph-nodes' -- "${derivations[@]}"
+CONFIG_TOML="${CONFIG_TOML}" \
+  nix run --file package.nix 'handle-stale-dependency-graph-nodes'
 
-PREFIX="${PREFIX}" \
-  TEE_FILE_PREFIX="${TEE_FILE_PREFIX}" \
-  nix run --file package.nix 'post' -- "${derivations[@]}" >&2
+CONFIG_TOML="${CONFIG_TOML}" \
+  nix run --file package.nix 'post' >&2
