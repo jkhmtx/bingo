@@ -6,4 +6,5 @@
 
 .direnv
 result*
+__TOOL__
 

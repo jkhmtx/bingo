@@ -1,0 +1,5 @@
+entrypoint = "project.nix"
+
+derivations = [":*main.nix"]
+
+generated-out-path = "nix/generated.nix"

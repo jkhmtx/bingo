@@ -1,7 +1,8 @@
 # shellcheck shell=bash
 
-export ENTRYPOINT="${ENTRYPOINT}"
+export CONFIG_TOML="${CONFIG_TOML}"
 export FIND_GENERATED_NIX_RAW_ATTRSET="${FIND_GENERATED_NIX_RAW_ATTRSET}"
+export GET_CONFIG_VALUE="${GET_CONFIG_VALUE}"
 export ROOT="${ROOT}"
 
 declare -A scanned
@@ -25,10 +26,14 @@ for attrname in "${!attrs_by_name[@]}"; do
 	echo "_\.${attrname}\b([^-]|$)"
 done >"${patterns_lst}"
 
-files=("$(realpath "${ENTRYPOINT}")")
+entrypoint="$(CONFIG_TOML="${CONFIG_TOML}" \
+	"${GET_CONFIG_VALUE}" \
+	entrypoint)"
+
+files=("$(realpath "${entrypoint}")")
 
 {
-	# Find all paths referenced by "${ENTRYPOINT}", and its dependents.
+	# Find all paths referenced by entrypoint, and its dependents.
 	while test "${#files[@]}" -gt 0; do
 		for file in "${files[@]}"; do
 			file="${file##"${ROOT}/"}"

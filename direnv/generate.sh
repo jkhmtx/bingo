@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-ENTRYPOINT=package.nix
+CONFIG_TOML=mrx.toml
 GENERATED_NIX=nix/root.nix
 PREFIX=__TOOL__
 
@@ -40,7 +40,7 @@ fi
 IGNORE_PATTERNS_FILE="$(mktemp)"
 echo "${GENERATED_NIX}" >"${IGNORE_PATTERNS_FILE}"
 
-ENTRYPOINT="${ENTRYPOINT}" \
+CONFIG_TOML="${CONFIG_TOML}" \
   IGNORE_PATTERNS_FILE="${IGNORE_PATTERNS_FILE}" \
   ROOT="${PWD}" \
   TEE_FILE_PREFIX="${LST_DIR}" \
@@ -55,7 +55,7 @@ if type watch_file >/dev/null 2>&1; then
 fi
 
 CACHE_DIR="${CACHE_DIR}" \
-  ENTRYPOINT="${ENTRYPOINT}" \
+  CONFIG_TOML="${CONFIG_TOML}" \
   GENERATED_NIX="${GENERATED_NIX}" \
   LST_DIR="${LST_DIR}" \
   PREFIX="${PREFIX}" \

@@ -1,4 +1,5 @@
 {...}: {
+  root.lib.get-config-value = ../scripts/lib/get-config-value/main.nix;
   root.build-shell = ../scripts/bin/build-shell/main.nix;
   root.find-watch-files = ../scripts/bin/find-watch-files/main.nix;
   root.generate-nix = ../scripts/bin/generate-nix/main.nix;
