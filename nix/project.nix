@@ -7,6 +7,6 @@ projectInputs: let
     then importAttrs value
     else (import value projectInputs));
 in let
-  generated = import ./generated.nix {};
+  generated = import ./generated.nix;
 in
   importAttrs generated

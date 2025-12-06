@@ -2,16 +2,13 @@
 
 set -euo pipefail
 
-CONFIG_TOML=mrx.toml
+nix build '#' --out-link .mrx/cmd
+mrx=.mrx/cmd/bin/mrx
 
-nix profile install --file .
-
-CONFIG_TOML="${CONFIG_TOML}" \
-  mrx generate
+"${mrx}" generate
 
 dev_shell_paths_lst="$(mktemp)"
-CONFIG_TOML="${CONFIG_TOML}" \
-  mrx build \
+"${mrx}" build \
   >"${dev_shell_paths_lst}"
 
 mapfile -t path_add_paths <"${dev_shell_paths_lst}"
@@ -22,8 +19,7 @@ if type PATH_add >/dev/null 2>&1; then
 fi
 
 watch_files_lst="$(mktemp)"
-CONFIG_TOML="${CONFIG_TOML}" \
-  mrx find-watch-files \
+"${mrx}" find-watch-files \
   >"${watch_files_lst}"
 
 mapfile -t watch_files <"${watch_files_lst}"
@@ -33,8 +29,6 @@ if type watch_file >/dev/null 2>&1; then
   watch_file "${watch_files[@]}"
 fi
 
-CONFIG_TOML="${CONFIG_TOML}" \
-  mrx refresh
+"${mrx}" refresh
 
-CONFIG_TOML="${CONFIG_TOML}" \
-  mrx post >&2
+"${mrx}" post >&2

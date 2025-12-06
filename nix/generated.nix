@@ -1,4 +1,4 @@
-{...}: {
+{
   bingo.run = ../bingo/run/main.nix;
   frontend.build = ../frontend/scripts/bin/build/main.nix;
   frontend.dev = ../frontend/scripts/bin/dev/main.nix;

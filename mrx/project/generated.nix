@@ -1,4 +1,4 @@
-{...}: {
+{
   package = ../package/main.nix;
   root.build-shell = ../scripts/bin/build-shell/main.nix;
   root.find-watch-files = ../scripts/bin/find-watch-files/main.nix;
@@ -15,4 +15,5 @@
   root.lib.get-config-value = ../scripts/lib/get-config-value/main.nix;
   root.lib.mtime-database = ../scripts/lib/mtime-database/main.nix;
   root.util.with-tee = ../scripts/util/with-tee/main.nix;
+  shell = ../shell/main.nix;
 }

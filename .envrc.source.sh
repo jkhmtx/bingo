@@ -2,9 +2,12 @@
 
 set -euo pipefail
 
-nix build --file mrx --out-link .mrx/cmd
+(
+  cd mrx
+  nix build '#' --out-link .mrx/cmd
+)
 
-mrx=.mrx/cmd/bin/mrx
+mrx=mrx/.mrx/cmd/bin/mrx
 
 "${mrx}" generate
 

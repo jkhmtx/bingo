@@ -1,5 +1,5 @@
-entrypoint = "project.nix"
+entrypoint = "flake.nix"
 
 derivations = [":*main.nix"]
 
-generated-out-path = "nix/generated.nix"
+generated-out-path = "project/generated.nix"
