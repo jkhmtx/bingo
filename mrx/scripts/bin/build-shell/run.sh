@@ -46,7 +46,7 @@ for derivation in "${derivations[@]}"; do
 cd ${root} || exit 1
 
 if ! bash -n ${cache} >/dev/null >&2; then
-	echo "${derivation}" | CACHE_DIR=${cache_dir} ${BUILD_AND_SYMLINK}
+	echo "${derivation}" | CACHE_DIR=${cache_dir} ROOT=${root} ${BUILD_AND_SYMLINK}
 fi
 
 ${cache} \${@}

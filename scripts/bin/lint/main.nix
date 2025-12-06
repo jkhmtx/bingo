@@ -1,15 +1,15 @@
 {
   pkgs,
-  projectNamespace,
+  _,
   ...
 }:
 pkgs.writeShellApplication {
   name = "root.lint";
 
   runtimeInputs = [
-    projectNamespace.root.lint-github-actions
-    projectNamespace.root.lint-js
-    projectNamespace.root.lint-shell
+    _.root.lint-github-actions
+    _.root.lint-js
+    _.root.lint-shell
   ];
 
   text = builtins.readFile ./run.sh;

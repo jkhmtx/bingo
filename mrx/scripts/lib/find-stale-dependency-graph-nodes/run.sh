@@ -35,6 +35,7 @@ function list_ancestors_recursive() {
 rm -rf "${graph_dir}" >/dev/null 2>&1 || true
 
 ignore_patterns_file="$(CONFIG_TOML="${CONFIG_TOML}" "${GENERATE_IGNORE_PATTERNS_FILE}")"
+echo "${ignore_patterns_file}" >&2
 
 CONFIG_TOML="${CONFIG_TOML}" "${FIND_DEPENDENCY_GRAPH_EDGES}" |
 	while read -r parent child; do

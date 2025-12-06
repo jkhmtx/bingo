@@ -23,16 +23,16 @@
         projectInputs = {
           inherit package;
           inherit pkgs;
-          projectNamespace = import ./nix/project.nix projectInputs;
+          _ = import ./nix/project.nix projectInputs;
         };
 
-        shell = import ./nix/dev-shell.nix projectInputs;
+        shell = import ./nix/shell.nix projectInputs;
       in
         {
           inherit package shell system;
           default = package;
         }
-        // projectInputs.projectNamespace;
+        // projectInputs._;
 
       outputs = (builtins.map mkOutput) systems;
     in

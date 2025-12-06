@@ -1,13 +1,13 @@
 {
   pkgs,
-  projectNamespace,
+  _,
   ...
 }:
 pkgs.writeShellApplication {
   name = "root.local-ci";
 
   runtimeInputs = [
-    projectNamespace.root.check
+    _.root.check
   ];
 
   text = builtins.readFile ./run.sh;

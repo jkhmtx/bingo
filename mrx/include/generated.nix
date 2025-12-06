@@ -1,4 +1,5 @@
 {...}: {
+  package = ../package/main.nix;
   root.build-shell = ../scripts/bin/build-shell/main.nix;
   root.find-watch-files = ../scripts/bin/find-watch-files/main.nix;
   root.generate-nix = ../scripts/bin/generate-nix/main.nix;
@@ -9,6 +10,7 @@
   root.lib.find-bins = ../scripts/lib/find-bins/main.nix;
   root.lib.find-dependency-graph-edges = ../scripts/lib/find-dependency-graph-edges/main.nix;
   root.lib.find-generated-nix-raw-attrset = ../scripts/lib/find-generated-nix-raw-attrset/main.nix;
+  root.lib.find-stale-dependency-graph-nodes = ../scripts/lib/find-stale-dependency-graph-nodes/main.nix;
   root.lib.generate-ignore-patterns-file = ../scripts/lib/generate-ignore-patterns-file/main.nix;
   root.lib.get-config-value = ../scripts/lib/get-config-value/main.nix;
   root.lib.mtime-database = ../scripts/lib/mtime-database/main.nix;

@@ -1,13 +1,13 @@
 {
   pkgs,
-  projectNamespace,
+  _,
   ...
 }:
 pkgs.writeShellApplication {
   name = "root.lint-js";
 
   runtimeInputs = [
-    projectNamespace.frontend.lint
+    _.frontend.lint
   ];
 
   text = builtins.readFile ./run.sh;

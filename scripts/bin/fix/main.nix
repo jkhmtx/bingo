@@ -1,12 +1,12 @@
 {
   pkgs,
-  projectNamespace,
+  _,
   ...
 }:
 pkgs.writeShellApplication {
   name = "root.fix";
 
-  runtimeInputs = [projectNamespace.root.check];
+  runtimeInputs = [_.root.check];
 
   text = builtins.readFile ./run.sh;
 }

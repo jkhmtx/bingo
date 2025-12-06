@@ -1,7 +1,9 @@
 root = true
 
-derivations = [":*main.nix", ":!:direnv/*"]
+derivations = [":*main.nix", ":!:mrx/*"]
 
 installables = ["#shell"]
 
 generated-out-path = "nix/generated.nix"
+
+eagerly-rebuild = true

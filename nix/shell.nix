@@ -1,6 +1,6 @@
 {pkgs, ...}:
 pkgs.symlinkJoin {
-  name = "dev-shell";
+  name = "shell";
   paths = [
     # binary pkgs for general usage
     pkgs.biome

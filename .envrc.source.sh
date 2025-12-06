@@ -2,14 +2,14 @@
 
 set -euo pipefail
 
-CONFIG_TOML=mrx.toml
+nix build --file mrx --out-link .mrx/cmd
 
-CONFIG_TOML="${CONFIG_TOML}" \
-  nix run --file direnv/package.nix 'generate-nix'
+mrx=.mrx/cmd/bin/mrx
+
+"${mrx}" generate
 
 dev_shell_paths_lst="$(mktemp)"
-CONFIG_TOML="${CONFIG_TOML}" \
-  nix run --file direnv/package.nix 'build-shell' \
+"${mrx}" build \
   >"${dev_shell_paths_lst}"
 
 mapfile -t path_add_paths <"${dev_shell_paths_lst}"
@@ -18,8 +18,7 @@ rm "${dev_shell_paths_lst}"
 PATH_add "${path_add_paths[@]}"
 
 watch_files_lst="$(mktemp)"
-CONFIG_TOML="${CONFIG_TOML}" \
-  nix run --file direnv/package.nix 'find-watch-files' \
+"${mrx}" find-watch-files \
   >"${watch_files_lst}"
 
 mapfile -t watch_files <"${watch_files_lst}"
@@ -27,8 +26,6 @@ rm "${watch_files_lst}"
 
 watch_file "${watch_files[@]}"
 
-CONFIG_TOML="${CONFIG_TOML}" \
-  nix run --file direnv/package.nix 'handle-stale-dependency-graph-nodes'
+"${mrx}" refresh
 
-CONFIG_TOML="${CONFIG_TOML}" \
-  nix run --file direnv/package.nix 'post' >&2
+"${mrx}" post >&2

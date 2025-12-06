@@ -8,8 +8,8 @@
     else (import value (inputs // infallible)));
 
   drvs = {
-    generated = import ./include/generated.nix {};
-    infallible = import ./include/infallible.nix {};
+    generated = import ./generated.nix {};
+    infallible = import ./infallible.nix {};
   };
 
   generated = importAttrs drvs.generated;
