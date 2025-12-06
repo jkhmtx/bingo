@@ -46,6 +46,7 @@
             name = system;
             value = {
               inherit (project) shell;
+              _ = project;
               default = project.package;
             };
           }
@@ -56,6 +57,14 @@
     {
       packages.aarch64-darwin = systems.aarch64-darwin;
       packages.x86_64-linux = systems.x86_64-linux;
+      apps.aarch64-darwin.default = {
+        type = "app";
+        program = "${systems.aarch64-darwin.default}/bin/mrx";
+      };
+      apps.x86_64-linux.default = {
+        type = "app";
+        program = "${systems.x86_64-linux.default}/bin/mrx";
+      };
     }
     // {inherit mkMrxProjectWith;};
 }

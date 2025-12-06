@@ -61,4 +61,4 @@ done
 # implementation. This means that opting out of caching is possible
 # on a per-exe basis.
 echo "${bin_dir}"
-printf '%s/bin\n' "${paths[@]}"
+printf '%s\n' "${paths[@]}"

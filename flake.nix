@@ -3,9 +3,15 @@
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-unstable";
+    mrxSrc.url = "path:mrx";
+    mrxSrc.inputs.nixpkgsSrc.follows = "nixpkgs";
   };
 
-  outputs = {nixpkgs, ...}: let
+  outputs = {
+    nixpkgs,
+    mrxSrc,
+    ...
+  }: let
     mapSystems = systems: let
       mkOutput = system: let
         pkgs = import nixpkgs {
@@ -19,20 +25,22 @@
         };
 
         package = import ./nix/package.nix projectInputs;
+        mrx = mrxSrc.packages."${system}".default;
+
+        _ = import ./nix/project.nix projectInputs;
 
         projectInputs = {
           inherit package;
           inherit pkgs;
-          _ = import ./nix/project.nix projectInputs;
+          inherit mrx;
+          inherit _;
         };
 
         shell = import ./nix/shell.nix projectInputs;
-      in
-        {
-          inherit package shell system;
-          default = package;
-        }
-        // projectInputs._;
+      in {
+        inherit _ package shell system mrx;
+        default = package;
+      };
 
       outputs = (builtins.map mkOutput) systems;
     in

@@ -1,5 +1,22 @@
 {
   "nodes": {
+    "mrxSrc": {
+      "inputs": {
+        "nixpkgsSrc": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1,
+        "narHash": "sha256-CjVBm9b1qrERx81iXZ1cO7ATTBBi4zle6oPgoRCqb2s=",
+        "path": "mrx",
+        "type": "path"
+      },
+      "original": {
+        "path": "mrx",
+        "type": "path"
+      }
+    },
     "nixpkgs": {
       "locked": {
         "lastModified": 1762977756,
@@ -18,6 +35,7 @@
     },
     "root": {
       "inputs": {
+        "mrxSrc": "mrxSrc",
         "nixpkgs": "nixpkgs"
       }
     }
