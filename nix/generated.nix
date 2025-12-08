@@ -7,6 +7,7 @@
   frontend.preview = ../frontend/scripts/bin/preview/main.nix;
   frontend.yarn = ../frontend/scripts/bin/yarn/main.nix;
   frontend.lib.biome = ../frontend/scripts/lib/biome/main.nix;
+  package = ../package/main.nix;
   root.check = ../scripts/bin/check/main.nix;
   root.fix = ../scripts/bin/fix/main.nix;
   root.format-js = ../scripts/bin/format-js/main.nix;
@@ -19,4 +20,5 @@
   root.lint-shell = ../scripts/bin/lint-shell/main.nix;
   root.lint = ../scripts/bin/lint/main.nix;
   root.local-ci = ../scripts/bin/local-ci/main.nix;
+  shell = ../shell/main.nix;
 }

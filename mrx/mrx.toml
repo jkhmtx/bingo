@@ -2,4 +2,4 @@ entrypoint = "flake.nix"
 
 derivations = [":*main.nix"]
 
-generated-out-path = "project/generated.nix"
+generated-out-path = "generated.nix"

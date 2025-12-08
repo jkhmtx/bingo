@@ -6,65 +6,20 @@
   };
 
   outputs = {nixpkgsSrc, ...}: let
-    mkMrxProjectWith = nixpkgs: {...} @ inputs: let
-      importAttrsWith = inputs: let
-        inherit (nixpkgs.lib) isAttrs;
-        inherit (nixpkgs.lib.attrsets) mapAttrs;
+    pathAttrImports = {
+      _ = import ./generated.nix;
+      infallible = import ./infallible.nix;
+    };
 
-        importAttrs = mapAttrs (_: value:
-          if isAttrs value
-          then importAttrs value
-          else (import value inputs));
-      in
-        importAttrs;
-      allInputs = inputs // {inherit importAttrsWith;};
-      project = import ./project allInputs;
-    in
-      project;
+    mapSystems = import ./lib/internal/map-systems.nix {inherit nixpkgsSrc pathAttrImports;};
+    mkProject = import ./lib/mk-project.nix pathAttrImports;
 
-    mapSystems = systems: let
-      mkProject = system: let
-        nixpkgs = import nixpkgsSrc {
-          inherit system;
-        };
-
-        mkMrxProject = mkMrxProjectWith nixpkgs;
-
-        project = mkMrxProject {
-          inherit nixpkgs;
-          pathSets = {
-            infallible = import ./infallible.nix;
-          };
-        };
-      in
-        project;
-    in
-      builtins.listToAttrs ((builtins.map (
-          system: let
-            project = mkProject system;
-          in {
-            name = system;
-            value = {
-              inherit (project) shell;
-              _ = project;
-              default = project.package;
-            };
-          }
-        ))
-        systems);
     systems = mapSystems ["aarch64-darwin" "x86_64-linux"];
-  in
-    {
-      packages.aarch64-darwin = systems.aarch64-darwin;
-      packages.x86_64-linux = systems.x86_64-linux;
-      apps.aarch64-darwin.default = {
-        type = "app";
-        program = "${systems.aarch64-darwin.default}/bin/mrx";
-      };
-      apps.x86_64-linux.default = {
-        type = "app";
-        program = "${systems.x86_64-linux.default}/bin/mrx";
-      };
-    }
-    // {inherit mkMrxProjectWith;};
+  in {
+    packages.aarch64-darwin = systems.packages.aarch64-darwin;
+    packages.x86_64-linux = systems.packages.x86_64-linux;
+    apps.aarch64-darwin = systems.apps.aarch64-darwin;
+    apps.x86_64-linux = systems.apps.x86_64-linux;
+    inherit mkProject;
+  };
 }

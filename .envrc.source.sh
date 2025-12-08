@@ -2,10 +2,14 @@
 
 set -euo pipefail
 
-nix run '#mrx' -- generate
+function mrx() {
+  nix run --show-trace '#mrx' -- "${@}"
+}
+
+mrx generate
 
 dev_shell_paths_lst="$(mktemp)"
-nix run '#mrx' -- build \
+mrx build \
   >"${dev_shell_paths_lst}"
 
 mapfile -t path_add_paths <"${dev_shell_paths_lst}"
