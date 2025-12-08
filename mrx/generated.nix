@@ -5,7 +5,7 @@
   root.generate-nix = ./scripts/bin/generate-nix/main.nix;
   root.generate = ./scripts/bin/generate/main.nix;
   root.handle-stale-dependency-graph-nodes = ./scripts/bin/handle-stale-dependency-graph-nodes/main.nix;
-  root.post = ./scripts/bin/post/main.nix;
+  root.hook = ./scripts/bin/hook/main.nix;
   root.lib.build-and-symlink-derivations = ./scripts/lib/build-and-symlink-derivations/main.nix;
   root.lib.find-bins = ./scripts/lib/find-bins/main.nix;
   root.lib.find-dependency-graph-edges = ./scripts/lib/find-dependency-graph-edges/main.nix;

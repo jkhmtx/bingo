@@ -28,4 +28,4 @@ watch_file "${watch_files[@]}"
 
 mrx refresh
 
-mrx post >&2
+mrx hook >&2

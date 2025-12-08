@@ -4,7 +4,7 @@
   ...
 }:
 nixpkgs.writeShellApplication {
-  name = "root.post";
+  name = "root.hook";
   runtimeInputs = [
     nixpkgs.coreutils
     nixpkgs.findutils

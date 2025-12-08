@@ -11,7 +11,7 @@ nixpkgs.writeShellApplication {
     _.root.generate-nix
     _.root.handle-stale-dependency-graph-nodes
     _.root.lib.build-and-symlink-derivations
-    _.root.post
+    _.root.hook
   ];
 
   runtimeEnv = {
@@ -20,7 +20,7 @@ nixpkgs.writeShellApplication {
     FIND_WATCH_FILES = _.root.find-watch-files.name;
     GENERATE_NIX = _.root.generate-nix.name;
     HANDLE_STALE_DEPENDENCY_GRAPH_NODES = _.root.handle-stale-dependency-graph-nodes.name;
-    POST = _.root.post.name;
+    HOOK = _.root.hook.name;
   };
   text = builtins.readFile ./run.sh;
 }

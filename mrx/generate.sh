@@ -31,4 +31,4 @@ fi
 
 "${mrx}" refresh
 
-"${mrx}" post >&2
+"${mrx}" hook >&2
