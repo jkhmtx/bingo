@@ -29,7 +29,7 @@
           inherit (_) mrx;
 
           pathAttrImports = {
-            _ = import ./nix/generated.nix;
+            _ = import ./mrx.generated.nix;
           };
         };
       in {

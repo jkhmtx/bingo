@@ -45,6 +45,9 @@ derivations)
 
   rm "${derivations_lst}"
   ;;
+ignores)
+  cat "${dir}"/mrx.ignore.lst 2>/dev/null || true
+  ;;
 entrypoint)
   entrypoint="$(get_value entrypoint)"
 
@@ -62,7 +65,7 @@ eagerly-rebuild) ;;
 generated-out-path)
   generated_out_path="$(get_value generated-out-path)"
 
-  echo "${generated_out_path:-${dir}/generated.nix}"
+  echo "${generated_out_path:-${dir}/mrx.generated.nix}"
   ;;
 ignore-patterns-file)
   ignore_patterns_file="$(get_value generated-out-path)"

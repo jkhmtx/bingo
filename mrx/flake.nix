@@ -7,7 +7,7 @@
 
   outputs = {nixpkgsSrc, ...}: let
     pathAttrImports = {
-      _ = import ./generated.nix;
+      _ = import ./mrx.generated.nix;
       infallible = import ./infallible.nix;
     };
 

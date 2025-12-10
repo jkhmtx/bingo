@@ -1,9 +1,9 @@
-root = true
+name = "root"
 
-derivations = [":*main.nix", ":!:mrx/*"]
+derivations = [":*main.nix"]
 
 installables = ["#shell"]
 
-generated-out-path = "nix/generated.nix"
+generated-out-path = "mrx.generated.nix"
 
 eagerly-rebuild = true

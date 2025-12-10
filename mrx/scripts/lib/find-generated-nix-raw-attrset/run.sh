@@ -1,21 +1,26 @@
 # shellcheck shell=bash
 
+function find_files() {
+	git ls-files --others --exclude-standard -- "${@}"
+	git ls-files -- "${@}"
+}
+
 export CONFIG_TOML="${CONFIG_TOML}"
 export GET_CONFIG_VALUE="${GET_CONFIG_VALUE}"
 
 derivations_lst="$(mktemp)"
 
-CONFIG_TOML="${CONFIG_TOML}" "${GET_CONFIG_VALUE}" derivations >"${derivations_lst}"
+{
+	CONFIG_TOML="${CONFIG_TOML}" "${GET_CONFIG_VALUE}" derivations
+	CONFIG_TOML="${CONFIG_TOML}" "${GET_CONFIG_VALUE}" ignores | sed 's/^/:!:/'
+} >"${derivations_lst}"
 
 mapfile -t derivations <"${derivations_lst}"
 
 rm "${derivations_lst}"
 
 mapfile -t paths < <(
-	{
-		git ls-files --others --exclude-standard -- "${derivations[@]}"
-		git ls-files -- "${derivations[@]}"
-	} | while read -r file; do
+	find_files "${derivations[@]}" | while read -r file; do
 		if test -f "${file}"; then
 			echo "${file}"
 		fi
