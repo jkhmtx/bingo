@@ -1,0 +1,14 @@
+[package]
+name = "mrx"
+description = "A Nix DevOps framework for monorepos"
+version = "0.0.1"
+edition = "2024"
+license = "Unlicense"
+repository = "https://www.github.com/jkhmtx/bingo.git"
+keywords = ["nix", "devops", "monorepo", "framework"]
+categories = ["command-line-utilities", "development-tools"]
+default-run = "mrx"
+
+[dependencies]
+mrx-utils = { path = "../mrx-utils" }
+mrx-hook = { path = "../mrx-hook" }

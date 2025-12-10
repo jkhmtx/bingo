@@ -1,6 +1,7 @@
 {
   nixpkgsSrc,
   pathAttrImports,
+  rustOverlay,
   ...
 }: let
   mkProjectWith = import ./mk-project-with.nix;
@@ -9,6 +10,7 @@
     mkProject' = system: let
       nixpkgs = import nixpkgsSrc {
         inherit system;
+        overlays = [rustOverlay.overlays.default];
       };
 
       project = (mkProjectWith nixpkgs) {

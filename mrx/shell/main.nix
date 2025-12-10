@@ -1,7 +1,13 @@
-{pkgs, ...}:
-pkgs.symlinkJoin {
+{
+  nixpkgs,
+  _,
+  ...
+}:
+nixpkgs.symlinkJoin {
   name = "shell";
   paths = [
-    pkgs.coreutils
+    nixpkgs.coreutils
+    nixpkgs.gcc
+    _.rust
   ];
 }

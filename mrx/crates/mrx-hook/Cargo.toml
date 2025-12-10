@@ -1,0 +1,7 @@
+[package]
+name = "mrx-hook"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+mrx-utils = { path = "../mrx-utils" }

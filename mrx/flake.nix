@@ -3,15 +3,24 @@
 
   inputs = {
     nixpkgsSrc.url = "github:nixos/nixpkgs?ref=nixos-unstable";
+
+    rustOverlay = {
+      url = "github:oxalica/rust-overlay";
+      inputs.nixpkgs.follows = "nixpkgsSrc";
+    };
   };
 
-  outputs = {nixpkgsSrc, ...}: let
+  outputs = {
+    nixpkgsSrc,
+    rustOverlay,
+    ...
+  }: let
     pathAttrImports = {
       _ = import ./mrx.generated.nix;
       infallible = import ./infallible.nix;
     };
 
-    mapSystems = import ./lib/internal/map-systems.nix {inherit nixpkgsSrc pathAttrImports;};
+    mapSystems = import ./lib/internal/map-systems.nix {inherit nixpkgsSrc pathAttrImports rustOverlay;};
     mkProject = import ./lib/mk-project.nix pathAttrImports;
 
     systems = mapSystems ["aarch64-darwin" "x86_64-linux"];
