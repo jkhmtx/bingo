@@ -20,5 +20,5 @@ in
   in
     project
     // {
-      mrx = mrxProject.package;
+      mrx = mrxProject.pkgs.mrx;
     }

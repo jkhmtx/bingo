@@ -36,7 +36,7 @@
       in {
         inherit (project) shell;
         _ = project;
-        default = project.package;
+        default = project.pkgs.mrx;
       }
     );
 

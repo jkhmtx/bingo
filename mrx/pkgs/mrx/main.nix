@@ -4,8 +4,8 @@
   ...
 }: let
   rustPlatform = nixpkgs.makeRustPlatform {
-    cargo = _.rust;
-    rustc = _.rust;
+    cargo = _.pkgs.rust;
+    rustc = _.pkgs.rust;
   };
 
   crateSrc = crate: ["crates/${crate}" "crates/${crate}/src"];
@@ -14,7 +14,7 @@
     pname = "mrx";
     version = "0.0.1";
 
-    src = nixpkgs.lib.sourceByRegex ../. (
+    src = nixpkgs.lib.sourceByRegex ../../. (
       ["crates"]
       ++ (crateSrc "mrx-bin")
       ++ (crateSrc "mrx-hook")

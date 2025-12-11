@@ -1,6 +1,6 @@
 {
-  package = package/main.nix;
-  rust = rust/main.nix;
+  pkgs.mrx = pkgs/mrx/main.nix;
+  pkgs.rust = pkgs/rust/main.nix;
   root.build-shell = scripts/bin/build-shell/main.nix;
   root.generate-nix = scripts/bin/generate-nix/main.nix;
   root.generate = scripts/bin/generate/main.nix;
