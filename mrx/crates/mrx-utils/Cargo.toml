@@ -5,3 +5,6 @@ edition = "2024"
 
 [dependencies]
 ignore = "0.4.25"
+serde = { version = "1.0.228", features = ["serde_derive"] }
+thiserror = "2.0.17"
+toml = "0.9.8"

@@ -1,12 +1,16 @@
 use mrx_utils::{Config, find_nix_raw_attrset};
 
 fn find_bins(config: Config) -> Vec<String> {
-    find_nix_raw_attrset(config)
+    let mut bins = find_nix_raw_attrset(&config)
         .iter()
         .filter(|(_, buf)| buf.components().any(|c| c.as_os_str() == "bin"))
         .map(|(attrname, _)| attrname)
         .cloned()
-        .collect()
+        .collect::<Vec<_>>();
+
+    bins.sort();
+
+    bins
 }
 
 pub fn hook(config: Config) {
