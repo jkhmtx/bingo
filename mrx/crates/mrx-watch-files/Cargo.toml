@@ -1,8 +1,8 @@
 [package]
-name = "mrx-hook"
+name = "mrx-watch-files"
 version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-bpaf = { version = "0.9.20", features = ["derive"] }
 mrx-utils = { path = "../mrx-utils" }
+rnix = "0.12.0"

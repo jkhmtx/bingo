@@ -45,7 +45,7 @@ fn get_name(path: &PathBuf, replacements: &[(String, String)]) -> String {
     name
 }
 
-pub fn find_nix_raw_attrset(config: &Config) -> PathAttrset {
+pub fn find_nix_path_attrset(config: &Config) -> PathAttrset {
     let mut attrset = PathAttrset::new();
 
     let mut builder = WalkBuilder::new(config.dir());

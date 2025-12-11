@@ -11,9 +11,9 @@ export PACKAGE="${PACKAGE}"
 export CONFIG_TOML=mrx.toml
 
 case "${1}" in
-cache-build) "${BUILD_AND_SYMLINK}" ;;
 build) "${BUILD_SHELL}" ;;
-find-watch-files) "${FIND_WATCH_FILES}" ;;
+cache-build) "${BUILD_AND_SYMLINK}" ;;
+find-watch-files) "${PACKAGE}" show --watch-files ;;
 generate) "${GENERATE_NIX}" ;;
 hook) "${PACKAGE}" hook ;;
 refresh) "${HANDLE_STALE_DEPENDENCY_GRAPH_NODES}" ;;

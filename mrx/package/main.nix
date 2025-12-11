@@ -16,13 +16,14 @@
 
     src = nixpkgs.lib.sourceByRegex ../. (
       ["crates"]
-      ++ (crateSrc "mrx-hook")
       ++ (crateSrc "mrx-bin")
+      ++ (crateSrc "mrx-hook")
       ++ (crateSrc "mrx-utils")
+      ++ (crateSrc "mrx-watch-files")
       ++ [".+\.rs" "^Cargo\.lock$" ".*Cargo\.toml"]
     );
 
-    cargoHash = "sha256-5Ji8QdNQyGK8gEXTHEantRmaSneSu1xWNdm2bI+oxDM=";
+    cargoHash = "sha256-leC6oi9GOIsFEtCUa5BSd1939INubK2IpkyJoff3BhI=";
 
     meta = {
       mainProgram = "mrx";

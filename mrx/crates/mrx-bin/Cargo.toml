@@ -12,3 +12,5 @@ default-run = "mrx"
 [dependencies]
 mrx-utils = { path = "../mrx-utils" }
 mrx-hook = { path = "../mrx-hook" }
+mrx-watch-files = { path = "../mrx-watch-files" }
+bpaf = { version = "0.9.20", features = ["derive"] }

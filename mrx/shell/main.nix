@@ -9,5 +9,6 @@ nixpkgs.symlinkJoin {
     nixpkgs.coreutils
     nixpkgs.gcc
     _.rust
+    _.package
   ];
 }
