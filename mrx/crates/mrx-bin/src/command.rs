@@ -4,6 +4,9 @@ use bpaf::*;
 #[bpaf(options)]
 pub enum MrxCommand {
     #[bpaf(command)]
+    /// Generate the project's barrel Nix file
+    Generate,
+    #[bpaf(command)]
     /// Print the post-build shell hook
     Hook,
 

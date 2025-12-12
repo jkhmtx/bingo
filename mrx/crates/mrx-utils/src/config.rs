@@ -7,11 +7,14 @@ use thiserror::Error;
 pub struct Config {
     path: PathBuf,
     toml: ConfigToml,
+
+    default_generated_out_path: PathBuf,
 }
 
 #[derive(Deserialize, Debug, Clone)]
 struct ConfigToml {
     ignore_file: Option<PathBuf>,
+    generated_out_path: Option<PathBuf>,
 }
 
 #[derive(Debug, Error)]
@@ -41,6 +44,13 @@ impl Config {
             .as_ref()
             .ok_or(ConfigValueError::MissingValue("ignore_file".to_string()))
     }
+
+    pub fn get_generated_out_path(&self) -> &PathBuf {
+        self.toml
+            .generated_out_path
+            .as_ref()
+            .unwrap_or(&self.default_generated_out_path)
+    }
 }
 
 #[derive(Debug, Error)]
@@ -66,6 +76,10 @@ impl TryFrom<PathBuf> for Config {
         })?;
         let toml: ConfigToml = toml::from_slice(&file)?;
 
-        Ok(Self { path, toml })
+        Ok(Self {
+            path,
+            toml,
+            default_generated_out_path: PathBuf::from("mrx.generated.nix"),
+        })
     }
 }

@@ -1,5 +1,6 @@
 use std::path::PathBuf;
 
+use mrx_generate::generate;
 use mrx_hook::hook;
 use mrx_utils::Config;
 use mrx_watch_files::watch_files;
@@ -12,6 +13,7 @@ fn main() {
     let config = Config::try_from(PathBuf::from("mrx.toml")).unwrap();
 
     match mrx_command().fallback_to_usage().run() {
+        MrxCommand::Generate => generate(config).unwrap(),
         MrxCommand::Hook => hook(config),
         MrxCommand::Show {
             watch_files: show_watch_files,

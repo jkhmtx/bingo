@@ -10,7 +10,8 @@ categories = ["command-line-utilities", "development-tools"]
 default-run = "mrx"
 
 [dependencies]
-mrx-utils = { path = "../mrx-utils" }
+mrx-generate = { path = "../mrx-generate" }
 mrx-hook = { path = "../mrx-hook" }
+mrx-utils = { path = "../mrx-utils" }
 mrx-watch-files = { path = "../mrx-watch-files" }
 bpaf = { version = "0.9.20", features = ["derive"] }
