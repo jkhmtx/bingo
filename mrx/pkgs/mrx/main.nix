@@ -20,7 +20,7 @@
       ++ [".+\.rs" "^Cargo\.lock$" ".*Cargo\.toml"]
     );
 
-    cargoHash = "sha256-XrjUA849vVDjdRIjiH6VcHsnEnaEfAjSXMPBkUSTi0g=";
+    cargoHash = "sha256-IQAHcR/Z8RjWNlwobUuqx2+EoWl0ybtbyNpK+olCEuM=";
 
     meta = {
       mainProgram = "mrx";

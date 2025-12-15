@@ -1,3 +1,4 @@
+use mrx_cli::HookOptions;
 use mrx_utils::{Config, find_nix_path_attrset};
 
 fn find_bins(config: Config) -> Vec<String> {
@@ -13,7 +14,7 @@ fn find_bins(config: Config) -> Vec<String> {
     bins
 }
 
-pub fn hook(config: Config) {
+pub fn hook(config: Config, options: HookOptions) {
     let bins = find_bins(config);
 
     println!("The following commands are available in your shell:");

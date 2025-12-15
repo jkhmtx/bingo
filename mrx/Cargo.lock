@@ -212,18 +212,36 @@ dependencies = [
 name = "mrx"
 version = "0.0.1"
 dependencies = [
- "bpaf",
+ "mrx-build",
+ "mrx-cli",
  "mrx-generate",
  "mrx-hook",
+ "mrx-refresh",
+ "mrx-show",
  "mrx-utils",
- "mrx-watch-files",
+]
+
+[[package]]
+name = "mrx-build"
+version = "0.1.0"
+dependencies = [
+ "mrx-cli",
+ "mrx-utils",
+ "thiserror",
+]
+
+[[package]]
+name = "mrx-cli"
+version = "0.1.0"
+dependencies = [
+ "bpaf",
 ]
 
 [[package]]
 name = "mrx-generate"
 version = "0.1.0"
 dependencies = [
- "bpaf",
+ "mrx-cli",
  "mrx-utils",
  "tempfile",
  "thiserror",
@@ -233,8 +251,26 @@ dependencies = [
 name = "mrx-hook"
 version = "0.1.0"
 dependencies = [
- "bpaf",
+ "mrx-cli",
  "mrx-utils",
+]
+
+[[package]]
+name = "mrx-refresh"
+version = "0.1.0"
+dependencies = [
+ "mrx-cli",
+ "mrx-utils",
+ "thiserror",
+]
+
+[[package]]
+name = "mrx-show"
+version = "0.1.0"
+dependencies = [
+ "mrx-cli",
+ "mrx-utils",
+ "rnix",
 ]
 
 [[package]]
@@ -246,14 +282,6 @@ dependencies = [
  "serde",
  "thiserror",
  "toml",
-]
-
-[[package]]
-name = "mrx-watch-files"
-version = "0.1.0"
-dependencies = [
- "mrx-utils",
- "rnix",
 ]
 
 [[package]]

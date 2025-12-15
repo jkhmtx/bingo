@@ -1,8 +1,9 @@
 [package]
-name = "mrx-hook"
+name = "mrx-refresh"
 version = "0.1.0"
 edition = "2024"
 
 [dependencies]
 mrx-cli = { path = "../mrx-cli" }
 mrx-utils = { path = "../mrx-utils" }
+thiserror = "2.0.17"

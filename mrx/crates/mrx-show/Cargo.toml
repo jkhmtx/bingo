@@ -1,8 +1,9 @@
 [package]
-name = "mrx-watch-files"
+name = "mrx-show"
 version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+mrx-cli = { path = "../mrx-cli" }
 mrx-utils = { path = "../mrx-utils" }
 rnix = "0.12.0"

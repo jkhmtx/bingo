@@ -1,3 +1,4 @@
+use mrx_cli::GenerateOptions;
 use mrx_utils::{Config, find_nix_path_attrset};
 
 use std::fmt::Write as _;
@@ -16,7 +17,7 @@ pub enum GenerateError {
 
 type GenerateResult<T> = Result<T, GenerateError>;
 
-pub fn generate(config: Config) -> GenerateResult<()> {
+pub fn generate(config: Config, _options: GenerateOptions) -> GenerateResult<()> {
     let out_path = config.get_generated_out_path();
     let destination = config.dir().join(out_path);
     let generated_dir = destination.parent();
