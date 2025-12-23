@@ -8,6 +8,5 @@ nixpkgs.symlinkJoin {
   paths = [
     _.pkgs.rust
     nixpkgs.coreutils
-    nixpkgs.gcc
   ];
 }

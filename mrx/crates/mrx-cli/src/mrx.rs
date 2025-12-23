@@ -1,22 +1,35 @@
 use bpaf::*;
 
-use crate::build::{Options as BuildOptions, get_options as get_build_options};
+use crate::{BuildOptions, GenerateOptions, HookOptions, RefreshOptions, ShowOptions};
+
+use crate::build::get_options as build;
+use crate::generate::get_options as generate;
+use crate::hook::get_options as hook;
+use crate::refresh::get_options as refresh;
+use crate::show::get_options as show;
 
 #[derive(Bpaf, Clone, Debug)]
 #[bpaf(options)]
-pub struct MrxCommand {
-    #[bpaf(external(get_build_options))]
+pub struct Options {
+    #[bpaf(external(build))]
     pub build: BuildOptions,
 
-    #[bpaf(external(crate::generate::get_options))]
-    pub generate: crate::generate::Options,
+    #[bpaf(external(generate))]
+    pub generate: GenerateOptions,
 
-    #[bpaf(external(crate::hook::get_options))]
-    pub hook: crate::hook::Options,
+    #[bpaf(external(hook))]
+    pub hook: HookOptions,
 
-    #[bpaf(external(crate::refresh::get_options))]
-    pub refresh: crate::refresh::Options,
+    #[bpaf(external(refresh))]
+    pub refresh: RefreshOptions,
 
-    #[bpaf(external(crate::show::get_options))]
-    pub show: crate::show::Options,
+    #[bpaf(external(show))]
+    pub show: ShowOptions,
+}
+
+pub fn run_and_show_usage() -> String {
+    options()
+        .run_inner(bpaf::Args::from(&["--help"]))
+        .unwrap_err()
+        .unwrap_stdout()
 }

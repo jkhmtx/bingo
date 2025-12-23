@@ -9,12 +9,14 @@ pub struct Config {
     toml: ConfigToml,
 
     default_generated_out_path: PathBuf,
+    default_installables: Vec<String>,
 }
 
 #[derive(Deserialize, Debug, Clone)]
 struct ConfigToml {
     ignore_file: Option<PathBuf>,
     generated_out_path: Option<PathBuf>,
+    installables: Option<Vec<String>>,
 }
 
 #[derive(Debug, Error)]
@@ -51,6 +53,13 @@ impl Config {
             .as_ref()
             .unwrap_or(&self.default_generated_out_path)
     }
+
+    pub fn get_installables(&self) -> &[String] {
+        self.toml
+            .installables
+            .as_ref()
+            .unwrap_or(&self.default_installables)
+    }
 }
 
 #[derive(Debug, Error)]
@@ -80,6 +89,7 @@ impl TryFrom<PathBuf> for Config {
             path,
             toml,
             default_generated_out_path: PathBuf::from("mrx.generated.nix"),
+            default_installables: vec![],
         })
     }
 }

@@ -6,5 +6,4 @@ edition = "2024"
 [dependencies]
 mrx-cli = { path = "../mrx-cli" }
 mrx-utils = { path = "../mrx-utils" }
-tempfile = "3.23.0"
 thiserror = "2.0.17"

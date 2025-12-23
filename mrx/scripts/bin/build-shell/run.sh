@@ -55,10 +55,5 @@ EOF
   chmod +x "${path}"
 done
 
-# If sourced by PATH_add in order,
-# any derivation in a symlinkJoin, built via '${INSTALLABLES}',
-# will be in preferential order in PATH, and shadow the cache-aside
-# implementation. This means that opting out of caching is possible
-# on a per-exe basis.
 echo "${bin_dir}"
 printf '%s\n' "${paths[@]}"
