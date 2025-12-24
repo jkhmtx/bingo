@@ -1,7 +1,11 @@
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 mod write_with_fallback;
 pub use write_with_fallback::{WriteWithFallbackError, write_with_fallback};
+
+pub fn exists(path: &str) -> bool {
+    std::fs::canonicalize(PathBuf::from(path)).ok().is_some()
+}
 
 pub fn mk_dir(path: &Path) -> Result<(), std::io::Error> {
     std::fs::DirBuilder::new().recursive(true).create(path)

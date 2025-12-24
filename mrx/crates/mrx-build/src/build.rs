@@ -1,24 +1,21 @@
 use mrx_cli::BuildOptions;
-use mrx_utils::fs::recreate_dir;
+use mrx_utils::fs::{exists, recreate_dir};
+use mrx_utils::nix_build_command::{NixBuildCommand, NixBuildError, NixBuildOutput};
 use mrx_utils::{Config, find_bin_attrnames};
 
 use std::fmt::Write as _;
-use std::io::Write as __;
 use std::os::unix::fs::PermissionsExt as UnixPermissions;
-use std::panic;
-use std::path::{Path, PathBuf};
+use std::path::Path;
 use thiserror::Error;
-
-use crate::nix_build_output::NixBuildStructuredStdout;
 
 #[derive(Debug, Error)]
 pub enum BuildError {
-    #[error("Missing either an 'installables' list in the config or a 'default.nix' in the root.")]
-    NoInstallables,
-    #[error("Failed to write to stdin")]
-    Stdin,
-    #[error("The build command failed to run")]
-    Run(#[from] std::io::Error),
+    #[error("No entrypoint 'flake.nix' or 'default.nix' found")]
+    NoEntrypoint,
+    #[error(transparent)]
+    Build(#[from] NixBuildError),
+    #[error("Writing cache failed: {0}")]
+    Cache(#[from] std::io::Error),
     #[error("{0}")]
     Failed(String),
     #[error("TODO: Implement")]
@@ -33,7 +30,7 @@ fn reset_bin_dir(bin_dir: &Path) -> BuildResult<()> {
 
 fn write_bin_dir(bin_dir: &Path, config: &Config) -> BuildResult<()> {
     let cache_dir = {
-        let dir = config.dir();
+        let dir = config.state_dir();
 
         dir.join("cache")
     };
@@ -68,7 +65,7 @@ fn write_bin_dir(bin_dir: &Path, config: &Config) -> BuildResult<()> {
 
         let mut perms = std::fs::metadata(&path)?.permissions();
         perms.set_mode(0o755);
-        std::fs::set_permissions(&path, perms)?
+        std::fs::set_permissions(&path, perms)?;
     }
 
     Ok(())
@@ -76,67 +73,29 @@ fn write_bin_dir(bin_dir: &Path, config: &Config) -> BuildResult<()> {
 
 pub fn build(config: Config, options: BuildOptions) -> BuildResult<Vec<String>> {
     let installables = config.get_installables();
-    let default_nix = std::fs::canonicalize(PathBuf::from("./default.nix")).ok();
-    if installables.is_empty() || default_nix.is_none() {
-        return Err(BuildError::NoInstallables);
-    }
 
-    let args = {
-        let mut args = Vec::from(["build", "--json", "--no-link"]);
+    let build_command = match (exists("./default.nix"), exists("./flake.nix")) {
+        (false, false) => Err(BuildError::NoEntrypoint),
+        (_, true) => Ok(NixBuildCommand::for_flake_nix(installables)),
+        (true, _) => Ok(NixBuildCommand::for_default_nix(installables)),
+    }?;
 
-        if installables.is_empty() {
-            args.push("--file");
-            args.push(".");
-        }
+    let mut paths = build_command
+        .execute()?
+        .into_iter()
+        .map(|NixBuildOutput { bin, out }| {
+            bin.or(out.map(|out| format!("{out}/bin")))
+                .expect("bin or out must be Some")
+        })
+        .collect::<Vec<_>>();
 
-        args
-    };
+    if options.cache.unwrap_or(true) {
+        let bin_dir = {
+            let dir = config.state_dir();
 
-    let build_cmd = {
-        let mut build_cmd = std::process::Command::new("nix")
-            .args(args)
-            .stdin(std::process::Stdio::piped())
-            .spawn()?;
+            dir.join("bin")
+        };
 
-        if !installables.is_empty() {
-            let mut stdin = build_cmd.stdin.take().ok_or(BuildError::Stdin)?;
-
-            let input_string = installables.to_vec().join("\n");
-            if let Err(e) = std::thread::spawn(move || {
-                stdin
-                    .write_all(input_string.as_bytes())
-                    .map_err(|_| BuildError::Stdin)
-            })
-            .join()
-            {
-                panic::resume_unwind(e);
-            }
-        }
-
-        build_cmd
-    };
-
-    let output = build_cmd.wait_with_output()?;
-    if !output.status.success() {
-        let err_out = String::from_utf8_lossy(&output.stderr);
-
-        return Err(BuildError::Failed(err_out.to_string()));
-    }
-
-    let bin_dir = if options.cache.unwrap_or(true) {
-        let dir = config.dir();
-
-        Some(dir.join("bin"))
-    } else {
-        None
-    };
-
-    let mut paths = NixBuildStructuredStdout::try_from(&output.stdout)
-        .map_err(|_| BuildError::Todo)?
-        .into_path_strs()
-        .ok_or(BuildError::Todo)?;
-
-    if let Some(bin_dir) = bin_dir {
         reset_bin_dir(&bin_dir)?;
         write_bin_dir(&bin_dir, &config)?;
 

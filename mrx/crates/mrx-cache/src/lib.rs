@@ -1,0 +1,70 @@
+use std::path::PathBuf;
+
+use mrx_cli::CacheOptions;
+use mrx_utils::{
+    Config,
+    fs::exists,
+    nix_build_command::{NixBuildCommand, NixBuildError},
+};
+use thiserror::Error;
+
+#[derive(Debug, Error)]
+pub enum CacheError {
+    #[error("No derivations provided. Provide at least one as a positional argument.")]
+    NoDerivations,
+    #[error("No entrypoint 'flake.nix' or 'default.nix' found")]
+    NoEntrypoint,
+    #[error(transparent)]
+    Build(#[from] NixBuildError),
+    #[error("Failed to symlink outpath: {0}")]
+    Symlink(#[from] std::io::Error),
+    #[error("TODO")]
+    Todo,
+}
+
+type CacheResult<T> = Result<T, CacheError>;
+
+pub fn cache(config: Config, options: CacheOptions) -> CacheResult<()> {
+    if options.derivations.is_empty() {
+        return Err(CacheError::NoDerivations);
+    }
+
+    let build_command = match (exists("./default.nix"), exists("./flake.nix")) {
+        (false, false) => Err(CacheError::NoEntrypoint),
+        (_, true) => Ok(NixBuildCommand::for_flake_nix(&options.derivations)),
+        (true, _) => Ok(NixBuildCommand::for_default_nix(&options.derivations)),
+    }?;
+
+    let cache_dir = {
+        let dir = config.state_dir();
+
+        dir.join("cache")
+    };
+
+    for path in build_command
+        .execute()?
+        .into_iter()
+        .filter_map(|output| output.out)
+    {
+        let derivation = path
+            .rsplit("-")
+            .next()
+            .expect("derivation outpath should follow the form '/nix/store/123abc-[derivation]'");
+
+        let path = PathBuf::from(&path);
+        std::fs::remove_file(cache_dir.join(&derivation)).or_else(|e| {
+            if e.kind() == std::io::ErrorKind::NotFound {
+                Ok(())
+            } else {
+                Err(e)
+            }
+        })?;
+
+        std::os::unix::fs::symlink(
+            path.join("bin").join(&derivation),
+            cache_dir.join(derivation),
+        )?;
+    }
+
+    Ok(())
+}

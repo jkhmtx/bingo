@@ -3,6 +3,7 @@ mod config;
 mod find_bin_attrnames;
 mod find_nix_path_attrset;
 pub mod fs;
+pub mod nix_build_command;
 mod path_attrset;
 
 pub use build_and_symlink::build_and_symlink;

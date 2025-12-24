@@ -2,7 +2,7 @@
 resolver = "3"
 members = [
   "crates/mrx-bin",
-  "crates/mrx-build",
+  "crates/mrx-build", "crates/mrx-cache",
   "crates/mrx-cli",
   "crates/mrx-generate",
   "crates/mrx-hook",

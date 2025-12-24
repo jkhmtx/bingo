@@ -33,6 +33,7 @@ impl Config {
     pub fn dir_absolute(&self) -> PathBuf {
         fs::canonicalize(&self.dir()).unwrap()
     }
+
     pub fn dir(&self) -> PathBuf {
         self.path
             .parent()
@@ -40,6 +41,11 @@ impl Config {
             .map(|p| p.to_path_buf())
             .unwrap_or_else(|| PathBuf::from("./"))
     }
+
+    pub fn state_dir(&self) -> PathBuf {
+        self.dir().join(".mrx")
+    }
+
     pub fn get_ignore_file(&self) -> ConfigValueResult<&PathBuf> {
         self.toml
             .ignore_file
