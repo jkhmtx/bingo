@@ -32,7 +32,6 @@ fn handle(config: Config) -> anyhow::Result<()> {
         SubcommandOptions::Hook(opts) => hook(config, opts),
         SubcommandOptions::Refresh(opts) => refresh(config, opts),
         SubcommandOptions::Show(opts) => show(config, opts),
-        _ => unreachable!(),
     };
 
     Ok(())

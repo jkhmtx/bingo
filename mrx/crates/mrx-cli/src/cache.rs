@@ -6,8 +6,8 @@ use bpaf::*;
 /// external users to consume.
 #[bpaf(command("cache"))]
 pub struct Options {
-    #[bpaf(positional("DERIVATIONS"))]
     /// The derivations to cache
+    #[bpaf(positional("DERIVATIONS"))]
     pub derivations: Vec<String>,
 }
 

@@ -1,5 +1,5 @@
 use mrx_cli::BuildOptions;
-use mrx_utils::fs::{exists, recreate_dir};
+use mrx_utils::fs::recreate_dir;
 use mrx_utils::nix_build_command::{NixBuildCommand, NixBuildError, NixBuildOutput};
 use mrx_utils::{Config, find_bin_attrnames};
 
@@ -74,11 +74,10 @@ fn write_bin_dir(bin_dir: &Path, config: &Config) -> BuildResult<()> {
 pub fn build(config: Config, options: BuildOptions) -> BuildResult<Vec<String>> {
     let installables = config.get_installables();
 
-    let build_command = match (exists("./default.nix"), exists("./flake.nix")) {
-        (false, false) => Err(BuildError::NoEntrypoint),
-        (_, true) => Ok(NixBuildCommand::for_flake_nix(installables)),
-        (true, _) => Ok(NixBuildCommand::for_default_nix(installables)),
-    }?;
+    let build_command = config
+        .get_entrypoint()
+        .map(|entrypoint| NixBuildCommand::new(entrypoint, installables))
+        .ok_or(BuildError::NoEntrypoint)?;
 
     let mut paths = build_command
         .execute()?

@@ -2,9 +2,11 @@ use serde::de::Error;
 use std::io::Write as __;
 use thiserror::Error;
 
-pub enum NixBuildCommand<'a> {
-    FlakeNix(&'a [String]),
-    DefaultNix(&'a [String]),
+use crate::config::Entrypoint;
+
+pub struct NixBuildCommand<'a> {
+    entrypoint: Entrypoint,
+    derivations: &'a [String],
 }
 
 #[derive(Debug, Error)]
@@ -48,43 +50,34 @@ impl TryFrom<&serde_json::Value> for NixBuildOutput {
 }
 
 impl<'a> NixBuildCommand<'a> {
-    pub fn for_flake_nix(derivations: &'a [String]) -> Self {
-        Self::FlakeNix(derivations)
-    }
-
-    pub fn for_default_nix(derivations: &'a [String]) -> Self {
-        Self::DefaultNix(derivations)
+    pub fn new(entrypoint: Entrypoint, derivations: &'a [String]) -> Self {
+        Self {
+            entrypoint,
+            derivations,
+        }
     }
 }
 
 impl NixBuildCommand<'_> {
-    fn derivations(&self) -> &[String] {
-        match self {
-            Self::FlakeNix(derivations) => derivations,
-            Self::DefaultNix(derivations) => derivations,
-        }
-    }
-
     pub fn execute(self) -> Result<Vec<NixBuildOutput>, NixBuildError> {
-        let mut args = Vec::from(["build", "--json", "--no-link"]);
-        let derivations = self.derivations();
+        let mut args: Vec<String> = ["build", "--json", "--no-link"]
+            .into_iter()
+            .map(|s| s.to_string())
+            .collect();
 
-        let input_string = if derivations.is_empty() {
+        let input_string = if self.derivations.is_empty() {
             None
         } else {
-            Some(derivations.join("\n"))
+            Some(self.derivations.join("\n"))
         };
 
         if input_string.is_some() {
-            args.push("--stdin");
+            args.push("--stdin".to_string());
         }
 
-        match self {
-            Self::FlakeNix(_) => {}
-            Self::DefaultNix(_) => {
-                args.push("--file");
-                args.push(".");
-            }
+        if let Entrypoint::File(path) = self.entrypoint {
+            args.push("--file".to_string());
+            args.push(path.to_string_lossy().to_string());
         }
 
         let mut build_cmd = std::process::Command::new("nix")

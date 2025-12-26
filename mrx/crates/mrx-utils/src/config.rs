@@ -3,6 +3,25 @@ use std::{fs, path::PathBuf};
 
 use thiserror::Error;
 
+use crate::fs::pathbuf_if_exists;
+
+#[derive(Deserialize, Debug, Clone)]
+struct ConfigToml {
+    ignore_file: Option<PathBuf>,
+    generated_out_path: Option<PathBuf>,
+    installables: Option<Vec<String>>,
+    entrypoint: Option<PathBuf>,
+}
+
+impl ConfigToml {
+    pub fn entrypoint(&self) -> Option<Entrypoint> {
+        self.entrypoint
+            .clone()
+            .map(Entrypoint::try_from)
+            .and_then(Result::ok)
+    }
+}
+
 #[derive(Debug, Clone)]
 pub struct Config {
     path: PathBuf,
@@ -10,13 +29,7 @@ pub struct Config {
 
     default_generated_out_path: PathBuf,
     default_installables: Vec<String>,
-}
-
-#[derive(Deserialize, Debug, Clone)]
-struct ConfigToml {
-    ignore_file: Option<PathBuf>,
-    generated_out_path: Option<PathBuf>,
-    installables: Option<Vec<String>>,
+    default_entrypoint: Option<Entrypoint>,
 }
 
 #[derive(Debug, Error)]
@@ -25,6 +38,31 @@ pub enum ConfigValueError {
     MissingValue(String),
     #[error("Io")]
     Io(#[from] std::io::Error),
+}
+
+#[derive(Deserialize, Debug, Clone)]
+pub enum Entrypoint {
+    Flake(PathBuf),
+    File(PathBuf),
+}
+
+impl Entrypoint {
+    pub fn as_path(&self) -> &PathBuf {
+        match self {
+            Self::Flake(path) | Self::File(path) => path,
+        }
+    }
+}
+
+impl TryFrom<PathBuf> for Entrypoint {
+    type Error = ();
+    fn try_from(value: PathBuf) -> Result<Self, Self::Error> {
+        match value.file_name().and_then(|name| name.to_str()) {
+            Some("flake.nix") => Ok(Self::Flake(value)),
+            Some(name) if name.ends_with(".nix") => Ok(Self::File(value)),
+            _ => Err(()),
+        }
+    }
 }
 
 type ConfigValueResult<T> = Result<T, ConfigValueError>;
@@ -66,6 +104,12 @@ impl Config {
             .as_ref()
             .unwrap_or(&self.default_installables)
     }
+
+    pub fn get_entrypoint(&self) -> Option<Entrypoint> {
+        let entrypoint = self.toml.entrypoint();
+
+        entrypoint.or_else(|| self.default_entrypoint.clone())
+    }
 }
 
 #[derive(Debug, Error)]
@@ -89,13 +133,19 @@ impl TryFrom<PathBuf> for Config {
                 _ => ConfigInitError::ReadError(e),
             }
         })?;
+
         let toml: ConfigToml = toml::from_slice(&file)?;
+
+        let default_entrypoint = pathbuf_if_exists("./flake.nix")
+            .map(Entrypoint::Flake)
+            .or_else(|| pathbuf_if_exists("./default.nix").map(Entrypoint::File));
 
         Ok(Self {
             path,
             toml,
             default_generated_out_path: PathBuf::from("mrx.generated.nix"),
             default_installables: vec![],
+            default_entrypoint,
         })
     }
 }

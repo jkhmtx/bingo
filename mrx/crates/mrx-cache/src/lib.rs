@@ -3,7 +3,6 @@ use std::path::PathBuf;
 use mrx_cli::CacheOptions;
 use mrx_utils::{
     Config,
-    fs::exists,
     nix_build_command::{NixBuildCommand, NixBuildError},
 };
 use thiserror::Error;
@@ -12,7 +11,7 @@ use thiserror::Error;
 pub enum CacheError {
     #[error("No derivations provided. Provide at least one as a positional argument.")]
     NoDerivations,
-    #[error("No entrypoint 'flake.nix' or 'default.nix' found")]
+    #[error("No fallback entrypoint 'flake.nix' or 'default.nix' found")]
     NoEntrypoint,
     #[error(transparent)]
     Build(#[from] NixBuildError),
@@ -29,11 +28,10 @@ pub fn cache(config: Config, options: CacheOptions) -> CacheResult<()> {
         return Err(CacheError::NoDerivations);
     }
 
-    let build_command = match (exists("./default.nix"), exists("./flake.nix")) {
-        (false, false) => Err(CacheError::NoEntrypoint),
-        (_, true) => Ok(NixBuildCommand::for_flake_nix(&options.derivations)),
-        (true, _) => Ok(NixBuildCommand::for_default_nix(&options.derivations)),
-    }?;
+    let build_command = config
+        .get_entrypoint()
+        .map(|entrypoint| NixBuildCommand::new(entrypoint, &options.derivations))
+        .ok_or(CacheError::NoEntrypoint)?;
 
     let cache_dir = {
         let dir = config.state_dir();
