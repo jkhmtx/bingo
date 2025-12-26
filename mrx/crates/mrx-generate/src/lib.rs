@@ -1,4 +1,5 @@
-use mrx_cli::GenerateOptions;
+mod cli;
+pub use cli::Options;
 use mrx_utils::fs::{self, WriteWithFallbackError, write_with_fallback};
 use mrx_utils::{Config, find_nix_path_attrset};
 
@@ -17,7 +18,7 @@ pub enum GenerateError {
 
 type GenerateResult<T> = Result<T, GenerateError>;
 
-pub fn generate(config: Config, _options: GenerateOptions) -> GenerateResult<()> {
+pub fn generate(config: Config, _options: Options) -> GenerateResult<()> {
     let out_path = config.get_generated_out_path();
     let destination = config.dir().join(out_path);
     let generated_dir = destination.parent();

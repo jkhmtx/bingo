@@ -16,7 +16,7 @@ else
 fi
 
 if ! bash -n "${cached_bin}" >/dev/null >&2; then
-  "${mrx_bin}" cache "${DERIVATION}"
+  "${mrx_bin}" plumbing cache "${DERIVATION}"
 fi
 
 ${cached_bin} "${@}"

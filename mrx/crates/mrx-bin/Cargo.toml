@@ -17,5 +17,5 @@ mrx-hook = { path = "../mrx-hook" }
 mrx-refresh = { path = "../mrx-refresh" }
 mrx-show = { path = "../mrx-show" }
 mrx-utils = { path = "../mrx-utils" }
-mrx-cli = { path = "../mrx-cli" }
 anyhow = "1.0.100"
+clap = { version = "4.5.53", features = ["derive"] }

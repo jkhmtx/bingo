@@ -4,6 +4,6 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-mrx-cli = { path = "../mrx-cli" }
+clap = { version = "4.5.53", features = ["derive"] }
 mrx-utils = { path = "../mrx-utils" }
 thiserror = "2.0.17"

@@ -1,6 +1,8 @@
 use std::path::PathBuf;
+mod cli;
 
-use mrx_cli::CacheOptions;
+pub use cli::Options;
+
 use mrx_utils::{
     Config,
     nix_build_command::{NixBuildCommand, NixBuildError},
@@ -23,7 +25,7 @@ pub enum CacheError {
 
 type CacheResult<T> = Result<T, CacheError>;
 
-pub fn cache(config: Config, options: CacheOptions) -> CacheResult<()> {
+pub fn cache(config: Config, options: Options) -> CacheResult<()> {
     if options.derivations.is_empty() {
         return Err(CacheError::NoDerivations);
     }

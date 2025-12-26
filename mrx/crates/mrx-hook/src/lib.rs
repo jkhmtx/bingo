@@ -1,7 +1,10 @@
-use mrx_cli::HookOptions;
 use mrx_utils::{Config, find_bin_attrnames};
 
-pub fn hook(config: Config, _options: HookOptions) {
+mod cli;
+
+pub use cli::Options;
+
+pub fn hook(config: Config, _options: Options) {
     let bins = {
         let mut bins = find_bin_attrnames(&config);
 
