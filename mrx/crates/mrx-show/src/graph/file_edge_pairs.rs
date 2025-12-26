@@ -1,0 +1,19 @@
+use mrx_utils::{
+    Config,
+    graph::{Edge, Graph},
+};
+
+pub fn file_edge_pairs(config: Config) {
+    let graph = Graph::try_from(config.get_entrypoint().unwrap()).unwrap();
+
+    dbg!(&graph);
+    let edges = graph.to_edges();
+
+    for Edge(a, b) in edges.into_iter() {
+        println!(
+            "{} {}",
+            a.as_path().as_path().display(),
+            b.as_path().as_path().display()
+        );
+    }
+}

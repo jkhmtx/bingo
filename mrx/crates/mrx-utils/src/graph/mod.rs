@@ -8,17 +8,14 @@ use crate::{
     fs::{AbsoluteFilePathBuf, AbsoluteFilePathBufError},
 };
 
+#[derive(Clone, Debug)]
 pub struct Node {
     path: AbsoluteFilePathBuf,
-    edges: Vec<usize>,
 }
 
 impl Node {
     fn new(path: AbsoluteFilePathBuf) -> Self {
-        Self {
-            path,
-            edges: vec![],
-        }
+        Self { path }
     }
 
     pub fn as_path(&self) -> &AbsoluteFilePathBuf {
@@ -26,9 +23,10 @@ impl Node {
     }
 }
 
+#[derive(Debug)]
 pub struct Graph {
     nodes: Vec<Node>,
-    todo_node_indexes: Vec<usize>,
+    edges: Vec<(usize, usize)>,
     by_path: HashMap<AbsoluteFilePathBuf, usize>,
 }
 
@@ -83,56 +81,73 @@ fn references_within(path: &AbsoluteFilePathBuf) -> Result<Vec<NodeReference>, G
         .collect()
 }
 
+#[derive(Debug)]
+pub struct Edge(pub Node, pub Node);
+
 impl Graph {
-    pub fn new(entrypoint: Entrypoint) -> Result<Self, GraphError> {
-        let path =
-            AbsoluteFilePathBuf::try_from(entrypoint.as_path().clone()).map_err(|e| match e {
-                AbsoluteFilePathBufError::NotFound => GraphError::NoEntrypoint,
-                AbsoluteFilePathBufError::NotAFile => GraphError::IllegalNode,
-                AbsoluteFilePathBufError::Io(error) => GraphError::Io(error),
-            })?;
-        let node = Node::new(path.clone());
-        let by_path = HashMap::from([(path.clone(), 0)]);
-
-        let mut graph = Self {
-            nodes: vec![node],
-            todo_node_indexes: vec![0],
-            by_path,
-        };
-
-        Graph::process(&mut graph, &path)?;
-
-        Ok(graph)
+    fn new(path: AbsoluteFilePathBuf) -> Self {
+        Self {
+            nodes: vec![Node::new(path.clone())],
+            edges: vec![],
+            by_path: HashMap::from([(path.clone(), 0)]),
+        }
     }
 
     pub fn as_nodes(&self) -> &Vec<Node> {
         &self.nodes
     }
 
-    fn try_add(&mut self, reference: NodeReference) {
-        let path = reference.as_path();
-        let idx = self.by_path.get(path);
-        let curr_idx = self.nodes.len();
-
-        match idx {
-            Some(idx) => {
-                self.nodes.last_mut().unwrap().edges.push(*idx);
-            }
-            None => {
-                let mut node = Node::new(path.clone());
-                node.edges.push(curr_idx);
-                self.by_path.insert(path.clone(), curr_idx);
-                self.nodes.push(node);
-            }
-        }
+    pub fn to_edges(&self) -> Vec<Edge> {
+        self.edges
+            .iter()
+            .map(|(a, b)| Edge(self.nodes[*a].clone(), self.nodes[*b].clone()))
+            .collect()
     }
 
-    fn process(&mut self, path: &AbsoluteFilePathBuf) -> Result<(), GraphError> {
-        for reference in references_within(&path)? {
-            self.try_add(reference.clone());
-            self.process(reference.as_path())?;
+    fn add_edge(&mut self, from: usize, to: usize) {
+        self.edges.push((from, to));
+    }
+
+    fn process(&mut self, idx: usize) -> Result<(), GraphError> {
+        let node = &self.nodes[idx];
+        for reference in references_within(node.as_path())? {
+            let path = reference.as_path();
+            let curr_idx = self.nodes.len();
+
+            if let Some(next_idx) = match self.by_path.get(path) {
+                Some(old_idx) => {
+                    self.add_edge(idx, *old_idx);
+                    None
+                }
+                None => {
+                    self.by_path.insert(path.clone(), curr_idx);
+                    self.nodes.push(Node::new(path.clone()));
+                    self.add_edge(idx, curr_idx);
+                    Some(curr_idx)
+                }
+            } {
+                self.process(next_idx)?;
+            }
         }
 
         Ok(())
+    }
+}
+
+impl TryFrom<Entrypoint> for Graph {
+    type Error = GraphError;
+
+    fn try_from(value: Entrypoint) -> Result<Self, Self::Error> {
+        let path = AbsoluteFilePathBuf::try_from(value.as_path().clone()).map_err(|e| match e {
+            AbsoluteFilePathBufError::NotFound => GraphError::NoEntrypoint,
+            AbsoluteFilePathBufError::NotAFile => GraphError::IllegalNode,
+            AbsoluteFilePathBufError::Io(error) => GraphError::Io(error),
+        })?;
+
+        let mut graph = Graph::new(path);
+
+        graph.process(0)?;
+
+        Ok(graph)
     }
 }
