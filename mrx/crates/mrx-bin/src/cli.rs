@@ -5,6 +5,7 @@ use mrx_generate::Options as GenerateOptions;
 use mrx_hook::Options as HookOptions;
 use mrx_refresh::Options as RefreshOptions;
 use mrx_show::Options as ShowOptions;
+use mrx_utils::{MrxCli, mrx_cli};
 
 /// Commands considered "plumbing" which are not generally intended for end users.
 #[derive(Subcommand)]
@@ -23,15 +24,10 @@ pub enum MrxCommand {
     Plumbing(Plumbing),
 }
 
-#[derive(Parser)]
+#[mrx_cli]
+#[derive(Parser, MrxCli)]
 #[command(version, about)]
-pub struct MrxCli {
+pub struct Mrx {
     #[command(subcommand)]
     pub command: MrxCommand,
-}
-
-impl MrxCli {
-    pub fn args() -> Self {
-        Self::parse()
-    }
 }

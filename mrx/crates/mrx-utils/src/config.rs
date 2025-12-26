@@ -1,6 +1,8 @@
 use serde::Deserialize;
 use std::{fs, path::PathBuf};
 
+const DEFAULT_CONFIG_PATH: &'static str = "mrx.toml";
+
 use thiserror::Error;
 
 use crate::fs::pathbuf_if_exists;
@@ -30,6 +32,12 @@ pub struct Config {
     default_generated_out_path: PathBuf,
     default_installables: Vec<String>,
     default_entrypoint: Option<Entrypoint>,
+}
+
+impl Config {
+    pub fn default_init() -> Result<Self, ConfigInitError> {
+        Self::try_from(PathBuf::from(DEFAULT_CONFIG_PATH))
+    }
 }
 
 #[derive(Debug, Error)]
@@ -122,6 +130,25 @@ pub enum ConfigInitError {
     ReadError(#[from] std::io::Error),
 }
 
+pub type ConfigInitResult<T> = Result<T, ConfigInitError>;
+
+impl<S: Into<String>> TryFrom<Option<S>> for Config {
+    type Error = ConfigInitError;
+
+    fn try_from(path: Option<S>) -> Result<Self, Self::Error> {
+        path.map(S::into)
+            .map_or_else(Self::default_init, Self::try_from)
+    }
+}
+
+impl TryFrom<String> for Config {
+    type Error = ConfigInitError;
+
+    fn try_from(path: String) -> Result<Self, Self::Error> {
+        Self::try_from(PathBuf::from(path))
+    }
+}
+
 impl TryFrom<PathBuf> for Config {
     type Error = ConfigInitError;
 
@@ -148,4 +175,11 @@ impl TryFrom<PathBuf> for Config {
             default_entrypoint,
         })
     }
+}
+
+pub trait MrxCli
+where
+    Self: Sized,
+{
+    fn create_mrx_cli_args() -> ConfigInitResult<(Config, Self)>;
 }

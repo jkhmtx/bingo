@@ -1,7 +1,6 @@
 mod cli;
 
-use crate::cli::{MrxCli, MrxCommand, Plumbing};
-use std::path::PathBuf;
+use crate::cli::{Mrx, MrxCommand, Plumbing};
 
 use mrx_build::build;
 use mrx_cache::cache;
@@ -12,18 +11,17 @@ use mrx_show::show;
 use mrx_utils::Config;
 
 fn main() {
-    let cli = MrxCli::args();
-    let config = Config::try_from(PathBuf::from("mrx.toml")).unwrap();
+    let (config, options) = Mrx::args().unwrap();
 
-    if let Err(e) = handle(cli, config) {
+    if let Err(e) = handle(config, options) {
         eprintln!("{}", e.to_string());
 
         std::process::exit(1);
     }
 }
 
-fn handle(cli: MrxCli, config: Config) -> anyhow::Result<()> {
-    match cli.command {
+fn handle(config: Config, options: Mrx) -> anyhow::Result<()> {
+    match options.command {
         MrxCommand::Build(opts) => build(config, opts).map(|paths| {
             for p in paths.into_iter() {
                 println!("{}", p);

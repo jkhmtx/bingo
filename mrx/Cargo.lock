@@ -328,6 +328,7 @@ name = "mrx-build"
 version = "0.1.0"
 dependencies = [
  "clap",
+ "mrx-macros-cli",
  "mrx-utils",
  "serde",
  "serde_json",
@@ -361,6 +362,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "mrx-macros-cli"
+version = "0.1.0"
+dependencies = [
+ "quote",
+ "syn",
+]
+
+[[package]]
 name = "mrx-refresh"
 version = "0.1.0"
 dependencies = [
@@ -383,6 +392,7 @@ name = "mrx-utils"
 version = "0.1.0"
 dependencies = [
  "ignore",
+ "mrx-macros-cli",
  "rnix",
  "serde",
  "serde_json",

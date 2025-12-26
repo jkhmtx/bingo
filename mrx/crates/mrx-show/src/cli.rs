@@ -1,4 +1,5 @@
 use clap::{Parser, ValueEnum};
+use mrx_utils::{MrxCli, mrx_cli};
 
 #[derive(ValueEnum, Clone)]
 pub enum Target {
@@ -8,7 +9,8 @@ pub enum Target {
 }
 
 /// Print some aspect of the mrx configuration or build system to stdout
-#[derive(Parser)]
+#[mrx_cli]
+#[derive(Parser, MrxCli)]
 pub struct Options {
     /// What to show
     #[arg(value_enum)]

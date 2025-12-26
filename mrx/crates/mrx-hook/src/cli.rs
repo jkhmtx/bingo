@@ -1,5 +1,7 @@
 use clap::Parser;
+use mrx_utils::{MrxCli, mrx_cli};
 
-#[derive(Parser)]
 /// Print the post-build shell hook
+#[mrx_cli]
+#[derive(Parser, MrxCli)]
 pub struct Options {}
