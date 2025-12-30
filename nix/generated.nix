@@ -1,6 +1,7 @@
 {...}: {
   bingo.run = ../bingo/run/main.nix;
   frontend.build = ../frontend/scripts/bin/build/main.nix;
+  frontend.deploy = ../frontend/scripts/bin/deploy/main.nix;
   frontend.dev = ../frontend/scripts/bin/dev/main.nix;
   frontend.preview = ../frontend/scripts/bin/preview/main.nix;
   frontend.sort-imports = ../frontend/scripts/bin/sort-imports/main.nix;
