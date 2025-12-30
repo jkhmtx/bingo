@@ -27,14 +27,10 @@ export function useDrawOffscreenCanvas2dCallback({
         throw new Error("Non-2d context already used!");
       }
 
-      // Clear every frame
-      ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-
+      ctx.reset();
       ctx.drawImage(image, 0, 0);
 
-      let i = 0;
       for (const card of cards) {
-        console.log({ card, i: i++ });
         const w = card.scale * INITIAL_W_PX;
         const h = card.scale * INITIAL_H_PX;
 
@@ -59,6 +55,7 @@ export function useDrawOffscreenCanvas2dCallback({
           ctx.stroke();
         }
 
+        // Cell content
         ctx.fillStyle = "black";
         ctx.font = `${w / 8}px Arial`;
         ctx.textAlign = "center";
@@ -74,6 +71,7 @@ export function useDrawOffscreenCanvas2dCallback({
           }
         }
       }
+
       return ctx;
     },
     [image, canvas],

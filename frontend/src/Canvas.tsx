@@ -39,28 +39,29 @@ export function Canvas({
 
   useEffect(() => {
     const ctx = drawOffscreenCanvas(cards);
-
     const visibleCtx = ref.current?.getContext("2d");
+
     if (!ctx || !visibleCtx) {
       return;
-    }
-
-    for (const card of cards) {
-      const w = card.scale * INITIAL_W_PX;
-      const h = card.scale * INITIAL_H_PX;
-
-      ctx.fillStyle = "yellow";
-      ctx.beginPath();
-      ctx.moveTo(card.x + w, card.y + h);
-      ctx.lineTo(card.x + w * 0.8, card.y + h);
-      ctx.lineTo(card.x + w, card.y + h * 0.8);
-      ctx.fill();
     }
 
     visibleCtx.canvas.width = ctx.canvas.width;
     visibleCtx.canvas.height = ctx.canvas.height;
 
+    visibleCtx.reset();
     visibleCtx.drawImage(ctx.canvas, 0, 0);
+
+    for (const card of cards) {
+      const w = card.scale * INITIAL_W_PX;
+      const h = card.scale * INITIAL_H_PX;
+
+      visibleCtx.fillStyle = "yellow";
+      visibleCtx.beginPath();
+      visibleCtx.moveTo(card.x + w, card.y + h);
+      visibleCtx.lineTo(card.x + w * 0.8, card.y + h);
+      visibleCtx.lineTo(card.x + w, card.y + h * 0.8);
+      visibleCtx.fill();
+    }
   }, [cards, drawOffscreenCanvas]);
 
   return (
